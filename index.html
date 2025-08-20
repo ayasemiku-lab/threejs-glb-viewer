@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>GLB ギャラリー（クリックで拡大・スマホ対応）</title>
+  <title>GLB ギャラリー（クリック拡大・スマホ対応）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Import Map ポリフィル（iOS Safari 等向け） -->
+  <!-- Import Map ポリフィル（iOS Safari 等） -->
   <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
 
   <!-- Import Map（examples の from 'three' を解決） -->
@@ -23,7 +23,7 @@
     body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
     h1 { text-align:center; padding:20px 0; }
 
-    /* ====== ギャラリー（3列・レスポンシブ） ====== */
+    /* ===== ギャラリー（3列・レスポンシブ） ===== */
     .gallery {
       display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -36,7 +36,7 @@
     @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
 
-    /* 16:9固定の “カードラッパー” で高さを確実に確保（崩れ防止） */
+    /* 16:9固定のカード（高さを確実に作る） */
     .card {
       position:relative;
       width:100%;
@@ -50,47 +50,64 @@
     }
     .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
 
-    /* glb-viewer をカードいっぱいにフィットさせる */
+    /* glb-viewer をカードいっぱいにフィット */
     .card > glb-viewer {
       position:absolute; inset:0;
       display:block; width:100%; height:100%;
     }
 
-    /* ====== モーダル（拡大ビュー） ====== */
+    /* ===== モーダル（拡大ビュー・はみ出し防止） ===== */
     .modal {
       position:fixed; inset:0;
       display:none; place-items:center;
       background:rgba(0,0,0,.6);
       backdrop-filter: blur(6px);
-      padding:24px; z-index:9999;
+      padding:0; z-index:9999;
     }
     .modal.open { display:grid; }
+
     .modal__inner {
       position:relative;
-      width:min(1200px, 96vw);
-      height:min(80vh, 70vw); /* スマホでも高さを確保 */
-      background:#0b0b0d;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px; overflow:hidden;
-      box-shadow:0 20px 60px rgba(0,0,0,.5);
+
+      /* フォールバック → 新しい単位の順に上書き */
+      width: 100vw;  width: 100svw;
+      height:100vh;  height:100svh;
+      /* 小画面では完全フルスクリーン（角丸なし） */
+      border:none; border-radius:0;
+      background:#0b0b0d; overflow:hidden;
     }
+
+    /* 余裕ある画面では少し小さめに（角丸・枠あり） */
+    @media (min-width: 900px) and (min-height: 700px) {
+      .modal__inner {
+        width: min(1200px, 96svw);
+        height: min(90svh, 70svw);
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:14px;
+        box-shadow:0 20px 60px rgba(0,0,0,.5);
+      }
+    }
+
     .modal__close {
-      position:absolute; top:8px; right:8px;
+      position:absolute;
+      top: max(8px, env(safe-area-inset-top));
+      right:max(8px, env(safe-area-inset-right));
       border:0; border-radius:10px;
       background:rgba(255,255,255,.12); color:#fff;
-      padding:8px 10px; cursor:pointer;
+      padding:10px 12px; cursor:pointer;
     }
     .modal__close:hover { background:rgba(255,255,255,.2); }
 
-    /* モーダル内の glb-viewer は親サイズにフィット */
+    /* モーダル内の viewer は親いっぱいにフィット */
     #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
   </style>
 </head>
 <body>
   <h1>GLB モデルギャラリー</h1>
 
-  <!-- ====== 3カードのギャラリー ====== -->
+  <!-- ===== 3カードのギャラリー ===== -->
   <main class="gallery" id="gallery">
+    <!-- data-* にオプションを書いておくとモーダルに継承できます -->
     <div class="card" data-src="assets/model.glb" data-autorotate="">
       <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
     </div>
@@ -102,7 +119,7 @@
     </div>
   </main>
 
-  <!-- ====== モーダル（クリックで拡大表示） ====== -->
+  <!-- ===== モーダル（クリックで拡大） ===== -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
       <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
@@ -110,7 +127,7 @@
     </div>
   </div>
 
-  <!-- ====== Web Component 定義 + モーダル制御 ====== -->
+  <!-- ===== Web Component 定義 + モーダル制御 ===== -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
@@ -123,7 +140,7 @@
         super();
         this.attachShadow({mode:'open'});
         const style=document.createElement('style');
-        style.textContent = `:host{display:block;contain:content;} canvas{display:block;width:100%;height:100%}`;
+        style.textContent=`:host{display:block;contain:content;} canvas{display:block;width:100%;height:100%}`;
         this.shadowRoot.append(style);
 
         this.renderer = new THREE.WebGLRenderer({ antialias:true });
@@ -149,8 +166,9 @@
         window.addEventListener('resize', ()=>this._resize(), { passive:true });
         window.addEventListener('orientationchange', ()=>this._resize(), { passive:true });
       }
+
       connectedCallback(){
-        // モバイル初回 0px 対策：二度リサイズ
+        // 初回 0px 対策：二度リサイズ
         this._resize();
         requestAnimationFrame(()=>this._resize());
         this._render();
@@ -158,12 +176,14 @@
         if (this.getAttribute('src')) this._load(this.getAttribute('src'));
         this._applyAttrs();
       }
+
       attributeChangedCallback(n,_o,v){
         if(n==='src' && v) this._load(v);
         if(n==='autorotate') this.controls.autoRotate = this.hasAttribute('autorotate');
         if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
-        if(n==='bg') this.scene.background = new THREE.Color(v);
+        if(n==='bg'){ this.scene.background = new THREE.Color(v); }
       }
+
       _applyAttrs(){
         this.controls.autoRotate = this.hasAttribute('autorotate');
         const e = parseFloat(this.getAttribute('exposure'));
@@ -171,27 +191,46 @@
         const bg = this.getAttribute('bg');
         if(bg) this.scene.background = new THREE.Color(bg);
       }
+
       _load(url){
         this.loader.load(url, (gltf)=>{
           if(this._root) this.scene.remove(this._root);
           this._root = gltf.scene; this.scene.add(this._root);
-
-          const b=new THREE.Box3().setFromObject(this._root), c=new THREE.Vector3(), s=new THREE.Vector3();
-          b.getCenter(c); b.getSize(s); this._root.position.sub(c);
-
-          const maxDim=Math.max(s.x,s.y,s.z), fov=this.camera.fov*Math.PI/180;
-          const dist=Math.abs(maxDim/2/Math.tan(fov/2));
-          this.camera.position.set(c.x+dist*0.6, c.y+dist*0.6, c.z+dist*1.2);
-          this.controls.target.copy(c); this.controls.update();
+          this.refit(); // 追加：ロード後にフレーミング
         }, undefined, e=>console.error('Load error:', e));
       }
+
+      // ★ 追加：現在のモデルを画面に気持ちよく収め直す
+      refit(){
+        // まず最新サイズを反映
+        this._resize();
+
+        if(!this._root){
+          return;
+        }
+        const b = new THREE.Box3().setFromObject(this._root);
+        const c = new THREE.Vector3(), s = new THREE.Vector3();
+        b.getCenter(c); b.getSize(s);
+        this._root.position.sub(c);
+
+        const maxDim = Math.max(s.x, s.y, s.z) || 1.0;
+        const fov = this.camera.fov * Math.PI/180;
+        const dist = Math.abs(maxDim/2/Math.tan(fov/2));
+
+        this.camera.position.set(c.x + dist*0.6, c.y + dist*0.6, c.z + dist*1.2);
+        this.controls.target.copy(c);
+        this.controls.update();
+      }
+
       _resize(){
         const r=this.getBoundingClientRect();
         const w = Math.max(1, Math.floor(r.width));
         const h = Math.max(1, Math.floor(r.height || this.offsetHeight || 220));
         this.renderer.setSize(w,h,false);
-        this.camera.aspect = w/h; this.camera.updateProjectionMatrix();
+        this.camera.aspect = w/h;
+        this.camera.updateProjectionMatrix();
       }
+
       _render(){
         this.controls.update();
         this.renderer.render(this.scene,this.camera);
@@ -207,21 +246,22 @@
     const closeBtn  = document.getElementById('closeBtn');
     let lastFocusEl = null;
 
-    // カードをクリック → モーダルで拡大
+    // カードクリックで開く
     gallery.addEventListener('click', (e)=>{
       const card = e.target.closest('.card');
       if(!card) return;
 
-      // カードから属性をコピー（src / autorotate / exposure / bg）
+      // src と任意の属性をモーダルへコピー
       const src = card.dataset.src || card.querySelector('glb-viewer')?.getAttribute('src');
       if(src) modalV.setAttribute('src', src);
 
       ['autorotate','exposure','bg'].forEach(attr=>{
         const val = card.dataset[attr] ?? card.querySelector('glb-viewer')?.getAttribute(attr);
-        if(val !== undefined && val !== null) {
-          // boolean属性（autorotate）は空文字でもOK
-          if(attr === 'autorotate') modalV.setAttribute(attr, '');
-          else modalV.setAttribute(attr, val);
+        if(attr === 'autorotate') {
+          if(val !== undefined) modalV.setAttribute('autorotate','');
+          else modalV.removeAttribute('autorotate');
+        } else if(val != null) {
+          modalV.setAttribute(attr, val);
         } else {
           modalV.removeAttribute(attr);
         }
@@ -232,11 +272,18 @@
 
     function openModal(origin){
       lastFocusEl = origin;
-      document.body.style.overflow = 'hidden';    // 背景スクロール抑止
+      document.body.style.overflow = 'hidden';
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
       closeBtn.focus();
+
+      // ★ サイズ確定後に2回ほど refit（初回0px対策）
+      requestAnimationFrame(()=> {
+        modalV.refit?.();
+        requestAnimationFrame(()=> modalV.refit?.());
+      });
     }
+
     function closeModal(){
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden','true');
@@ -248,6 +295,10 @@
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); }); // 背景クリックで閉じる
     window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+    // 端末の回転・サイズ変更でも再フィット
+    window.addEventListener('resize', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
+    window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 </body>
 </html>

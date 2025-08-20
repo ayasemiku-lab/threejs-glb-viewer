@@ -2,19 +2,15 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>GLB ギャラリー（クリック拡大・戻るボタン付き）</title>
+  <title>GLB ギャラリー（戻るボタン強化版）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Import Map ポリフィル（iOS Safari 等） -->
+  <!-- Import Map ポリフィル -->
   <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
 
-  <!-- Import Map（examples の from 'three' を解決） -->
+  <!-- Import Map -->
   <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
-    }
-  }
+  { "imports": { "three": "https://unpkg.com/three@0.165.0/build/three.module.js" } }
   </script>
 
   <style>
@@ -22,6 +18,25 @@
     * { box-sizing: border-box; }
     body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
     h1 { text-align:center; padding:20px 0; }
+
+    /* ===== ページ全体の戻る（左上固定） ===== */
+    .pageBack{
+      position: fixed;
+      top:  max(10px, env(safe-area-inset-top));
+      left: max(10px, env(safe-area-inset-left));
+      z-index: 2147483647;             /* 最優先で前面に */
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #00d3a7;             /* 目立つ色（後で変えてOK） */
+      color: #0b0b0d;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: .02em;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      pointer-events: auto;            /* 念のため */
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pageBack:hover{ filter: brightness(1.05); }
 
     /* ===== ギャラリー（3列・レスポンシブ） ===== */
     .gallery {
@@ -36,47 +51,28 @@
     @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
 
-    /* 16:9固定のカード（高さを確実に作る） */
+    /* 16:9カード */
     .card {
-      position:relative;
-      width:100%;
-      padding-top:56.25%; /* 16:9 */
-      border-radius:12px;
-      overflow:hidden;
-      background:#0e0e10;
+      position:relative; width:100%; padding-top:56.25%;
+      border-radius:12px; overflow:hidden; background:#0e0e10;
       outline:1px solid rgba(255,255,255,.08);
-      cursor:pointer;
-      transition: transform .15s ease, outline-color .15s ease;
+      cursor:pointer; transition: transform .15s ease, outline-color .15s ease;
     }
     .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
+    .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
 
-    /* glb-viewer をカードいっぱいにフィット */
-    .card > glb-viewer {
-      position:absolute; inset:0;
-      display:block; width:100%; height:100%;
-    }
-
-    /* ===== モーダル（拡大ビュー・はみ出し防止） ===== */
-    .modal {
-      position:fixed; inset:0;
-      display:none; place-items:center;
-      background:rgba(0,0,0,.6);
-      backdrop-filter: blur(6px);
-      padding:0; z-index:9999;
-    }
+    /* ===== モーダル ===== */
+    .modal { position:fixed; inset:0; display:none; place-items:center;
+      background:rgba(0,0,0,.6); backdrop-filter: blur(6px); padding:0; z-index: 9999; }
     .modal.open { display:grid; }
 
     .modal__inner {
       position:relative;
-
-      /* フルスクリーン（svw/svhはブラウザUI考慮） */
       width: 100vw;  width: 100svw;
       height:100vh;  height:100svh;
-
-      border:none; border-radius:0; /* 小画面は完全フル */
+      border:none; border-radius:0;
       background:#0b0b0d; overflow:hidden;
     }
-    /* 余裕ある画面では少し小さめ & 角丸 */
     @media (min-width: 900px) and (min-height: 700px) {
       .modal__inner {
         width: min(1200px, 96svw);
@@ -87,37 +83,44 @@
       }
     }
 
-    /* 戻る（左上常時表示） */
+    /* モーダルの戻る（左上固定・最前面） */
     .modal__back {
       position:absolute;
-      top:  max(8px, env(safe-area-inset-top));
-      left: max(8px, env(safe-area-inset-left));
-      border:0; border-radius:10px;
-      background:rgba(255,255,255,.12); color:#fff;
-      padding:10px 14px; cursor:pointer;
-      font-weight:600;
+      top:  max(10px, env(safe-area-inset-top));
+      left: max(10px, env(safe-area-inset-left));
+      z-index: 2147483647;
+      border:0; border-radius:12px;
+      background:#00d3a7; color:#0b0b0d;
+      padding:10px 14px; cursor:pointer; font-weight:800;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      pointer-events: auto;
     }
-    .modal__back:hover { background:rgba(255,255,255,.2); }
+    .modal__back:hover { filter: brightness(1.05); }
 
-    /* 閉じる（右上 ✕） */
+    /* モーダルの閉じる（右上） */
     .modal__close {
       position:absolute;
-      top:  max(8px, env(safe-area-inset-top));
-      right:max(8px, env(safe-area-inset-right));
-      border:0; border-radius:10px;
+      top:  max(10px, env(safe-area-inset-top));
+      right:max(10px, env(safe-area-inset-right));
+      z-index: 2147483647;
+      border:0; border-radius:12px;
       background:rgba(255,255,255,.12); color:#fff;
       padding:10px 12px; cursor:pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      pointer-events: auto;
     }
     .modal__close:hover { background:rgba(255,255,255,.2); }
 
-    /* モーダル内の viewer は親いっぱいにフィット */
+    /* ビューアーを親いっぱいに */
     #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
   </style>
 </head>
 <body>
+  <!-- ✅ ページ全体の戻る（常時表示・左上固定） -->
+  <a class="pageBack" href="javascript:history.back()" aria-label="前のページへ戻る">← 前のページへ戻る</a>
+
   <h1>GLB モデルギャラリー</h1>
 
-  <!-- ===== 3カードのギャラリー ===== -->
   <main class="gallery" id="gallery">
     <div class="card" data-src="assets/model.glb" data-autorotate="">
       <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
@@ -130,25 +133,24 @@
     </div>
   </main>
 
-  <!-- ===== モーダル（クリックで拡大） ===== -->
+  <!-- モーダル -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
-      <!-- ← 戻る（左上常時表示） -->
+      <!-- ✅ モーダル内の戻る -->
       <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
-      <!-- ✕ 閉じる（右上） -->
+      <!-- ✕ 閉じる -->
       <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
 
       <glb-viewer id="modalViewer" bg="#0e0e10" autorotate></glb-viewer>
     </div>
   </div>
 
-  <!-- ===== Web Component 定義 + モーダル制御 ===== -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
 
-    /* ---------- <glb-viewer> 定義 ---------- */
+    /* ========== <glb-viewer> 定義 ========== */
     class GlbViewer extends HTMLElement {
       static get observedAttributes(){ return ['src','autorotate','exposure','bg']; }
       constructor(){
@@ -175,30 +177,24 @@
 
         this.loader = new GLTFLoader();
 
-        // リサイズ監視 + フォールバック
         this._resizeObserver = new ResizeObserver(()=>this._resize());
         this._resizeObserver.observe(this);
         window.addEventListener('resize', ()=>this._resize(), { passive:true });
         window.addEventListener('orientationchange', ()=>this._resize(), { passive:true });
       }
-
       connectedCallback(){
-        // 初回 0px 対策：二度リサイズ
         this._resize();
         requestAnimationFrame(()=>this._resize());
         this._render();
-
         if (this.getAttribute('src')) this._load(this.getAttribute('src'));
         this._applyAttrs();
       }
-
       attributeChangedCallback(n,_o,v){
         if(n==='src' && v) this._load(v);
         if(n==='autorotate') this.controls.autoRotate = this.hasAttribute('autorotate');
         if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
         if(n==='bg'){ this.scene.background = new THREE.Color(v); }
       }
-
       _applyAttrs(){
         this.controls.autoRotate = this.hasAttribute('autorotate');
         const e = parseFloat(this.getAttribute('exposure'));
@@ -206,16 +202,13 @@
         const bg = this.getAttribute('bg');
         if(bg) this.scene.background = new THREE.Color(bg);
       }
-
       _load(url){
         this.loader.load(url, (gltf)=>{
           if(this._root) this.scene.remove(this._root);
           this._root = gltf.scene; this.scene.add(this._root);
-          this.refit(); // 追加：ロード後にフレーミング
+          this.refit();
         }, undefined, e=>console.error('Load error:', e));
       }
-
-      // 現在のモデルを画面に収め直す
       refit(){
         this._resize();
         if(!this._root){ return; }
@@ -223,34 +216,25 @@
         const c = new THREE.Vector3(), s = new THREE.Vector3();
         b.getCenter(c); b.getSize(s);
         this._root.position.sub(c);
-
         const maxDim = Math.max(s.x, s.y, s.z) || 1.0;
         const fov = this.camera.fov * Math.PI/180;
         const dist = Math.abs(maxDim/2/Math.tan(fov/2));
-
         this.camera.position.set(c.x + dist*0.6, c.y + dist*0.6, c.z + dist*1.2);
         this.controls.target.copy(c);
         this.controls.update();
       }
-
       _resize(){
         const r=this.getBoundingClientRect();
         const w = Math.max(1, Math.floor(r.width));
         const h = Math.max(1, Math.floor(r.height || this.offsetHeight || 220));
         this.renderer.setSize(w,h,false);
-        this.camera.aspect = w/h;
-        this.camera.updateProjectionMatrix();
+        this.camera.aspect = w/h; this.camera.updateProjectionMatrix();
       }
-
-      _render(){
-        this.controls.update();
-        this.renderer.render(this.scene,this.camera);
-        requestAnimationFrame(()=>this._render());
-      }
+      _render(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._render()); }
     }
     customElements.define('glb-viewer', GlbViewer);
 
-    /* ---------- モーダル制御（クリックで拡大） ---------- */
+    /* ========== モーダル制御 ========== */
     const gallery   = document.getElementById('gallery');
     const modal     = document.getElementById('modal');
     const modalV    = document.getElementById('modalViewer');
@@ -258,15 +242,11 @@
     const backBtn   = document.getElementById('backBtn');
     let lastFocusEl = null;
 
-    // カードクリックで開く
     gallery.addEventListener('click', (e)=>{
       const card = e.target.closest('.card');
       if(!card) return;
-
-      // src と任意の属性をモーダルへコピー
       const src = card.dataset.src || card.querySelector('glb-viewer')?.getAttribute('src');
       if(src) modalV.setAttribute('src', src);
-
       ['autorotate','exposure','bg'].forEach(attr=>{
         const val = card.dataset[attr] ?? card.querySelector('glb-viewer')?.getAttribute(attr);
         if(attr === 'autorotate') {
@@ -278,7 +258,6 @@
           modalV.removeAttribute(attr);
         }
       });
-
       openModal(card);
     });
 
@@ -287,36 +266,24 @@
       document.body.style.overflow = 'hidden';
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
-      backBtn.focus(); // 左上の「← 戻る」に初期フォーカス
-
-      // サイズ確定後に refit を2回（初回0px対策）
+      backBtn.focus();
       requestAnimationFrame(()=> {
         modalV.refit?.();
         requestAnimationFrame(()=> modalV.refit?.());
       });
     }
-
     function closeModal(){
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden','true');
       document.body.style.overflow = '';
       if(lastFocusEl) lastFocusEl.focus();
     }
-
-    // 戻る/閉じるの両方で閉じる
     backBtn .addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
-
-    // 背景タップで閉じる
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
-
-    // Esc キーで閉じる
     window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
-
-    // 回転・サイズ変更でも再フィット
     window.addEventListener('resize', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 </body>
 </html>
-

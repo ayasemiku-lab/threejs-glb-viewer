@@ -8,7 +8,7 @@
   <!-- Import Map ポリフィル（iOS Safari 等） -->
   <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
 
-  <!-- Import Map（examples の from 'three' を解決） -->
+  <!-- Import Map -->
   <script type="importmap">
   { "imports": { "three": "https://unpkg.com/three@0.165.0/build/three.module.js" } }
   </script>
@@ -19,7 +19,7 @@
     body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
     h1 { text-align:center; padding:20px 0; }
 
-    /* ===== ギャラリー（3列・レスポンシブ） ===== */
+    /* ===== ギャラリー ===== */
     .gallery {
       display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -27,12 +27,10 @@
       max-width:1200px;
       margin:0 auto;
       padding:0 20px 40px;
-      align-items:stretch;
     }
     @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
 
-    /* 16:9カード */
     .card {
       position:relative; width:100%; padding-top:56.25%;
       border-radius:12px; overflow:hidden; background:#0e0e10;
@@ -40,44 +38,33 @@
       cursor:pointer; transition: transform .15s ease, outline-color .15s ease;
     }
     .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
-    .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
+    .card > glb-viewer { position:absolute; inset:0; width:100%; height:100%; }
 
     /* ===== モーダル ===== */
     .modal {
       position:fixed; inset:0;
       display:none; place-items:center;
-      background:rgba(0,0,0,.6);
-      backdrop-filter: blur(6px);
-      padding:0; z-index:9999;
+      background:rgba(0,0,0,.6); backdrop-filter: blur(6px);
+      z-index:9999;
     }
     .modal.open { display:grid; }
 
     .modal__inner {
       position:relative;
-      width: 100vw;  width: 100svw;
-      height:100vh;  height:100svh;
-      border:none; border-radius:0;
+      width:100vw; height:100vh;
       background:#0b0b0d; overflow:hidden;
-    }
-    @media (min-width: 900px) and (min-height: 700px) {
-      .modal__inner {
-        width: min(1200px, 96svw);
-        height: min(90svh, 70svw);
-        border:1px solid rgba(255,255,255,.12);
-        border-radius:14px;
-        box-shadow:0 20px 60px rgba(0,0,0,.5);
-      }
     }
 
     /* ← 戻るボタン（緑文字） */
     .modal__back {
       position:absolute;
-      top:  max(10px, env(safe-area-inset-top));
-      left: max(10px, env(safe-area-inset-left));
-      z-index: 10000;
+      top:max(10px, env(safe-area-inset-top));
+      left:max(10px, env(safe-area-inset-left));
+      z-index:10000;
       border:0; border-radius:12px;
       background:rgba(255,255,255,.12);
-      color:#4CAF50;  /* 緑色 */
+      color:#4CAF50 !important;
+      -webkit-text-fill-color:#4CAF50 !important;
       padding:10px 14px; cursor:pointer; font-weight:600;
     }
     .modal__back:hover { background:rgba(76,175,80,.25); }
@@ -85,17 +72,18 @@
     /* ✕ ボタン（緑文字） */
     .modal__close {
       position:absolute;
-      top:  max(10px, env(safe-area-inset-top));
+      top:max(10px, env(safe-area-inset-top));
       right:max(10px, env(safe-area-inset-right));
-      z-index: 10000;
+      z-index:10000;
       border:0; border-radius:12px;
       background:rgba(255,255,255,.12);
-      color:#4CAF50;  /* 緑色 */
+      color:#4CAF50 !important;
+      -webkit-text-fill-color:#4CAF50 !important;
       padding:10px 12px; cursor:pointer;
     }
     .modal__close:hover { background:rgba(76,175,80,.25); }
 
-    #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
+    #modalViewer { position:absolute; inset:0; width:100%; height:100%; }
   </style>
 </head>
 <body>
@@ -114,17 +102,17 @@
   </main>
 
   <!-- モーダル -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
-      <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
-      <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
+  <div class="modal" id="modal">
+    <div class="modal__inner">
+      <button class="modal__back" id="backBtn">← 戻る</button>
+      <button class="modal__close" id="closeBtn">✕</button>
       <glb-viewer id="modalViewer" bg="#0e0e10" autorotate></glb-viewer>
     </div>
   </div>
 
-  <!-- JS部分は前回と同じ -->
+  <!-- JS部分（省略: 前と同じ） -->
   <script type="module">
-    /* ...（前回の JavaScript 全部そのまま）... */
+    /* ... 前回の JavaScript そのまま ... */
   </script>
 </body>
 </html>

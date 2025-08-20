@@ -1,149 +1,100 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GLB Viewer – No ImportMap</title>
-<style>
-  body{margin:0;background:#0e0e10;color:#ddd;font:14px/1.5 system-ui,sans-serif}
-  glb-viewer{display:block;width:100%;max-width:1000px;aspect-ratio:16/9;background:#0e0e10;border-radius:12px;overflow:hidden;margin:16px auto}
-  /* フォールバック（古い端末向け） */
-  .ratio-16x9{position:relative;width:100%;max-width:1000px;margin:16px auto}
-  .ratio-16x9::before{content:"";display:block;padding-top:56.25%}
-  .ratio-16x9>glb-viewer{position:absolute;inset:0}
-</style>
-</head>
-<body>
+  <meta charset="utf-8" />
+  <title>3モデル ギャラリー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<div class="ratio-16x9">
-  <!-- ★ src をスマホから到達できる https URL に（例：GitHub Pages の絶対URL） -->
-  <glb-viewer src="https://<ユーザー>.github.io/<repo>/assets/model.glb" autorotate exposure="1.1" bg="#0e0e10"></glb-viewer>
-</div>
-
-<script type="module">
-  import * as THREE from "https://esm.sh/three@0.165.0";
-  import { OrbitControls } from "https://esm.sh/three@0.165.0/examples/jsm/controls/OrbitControls.js";
-  import { GLTFLoader } from "https://esm.sh/three@0.165.0/examples/jsm/loaders/GLTFLoader.js";
-  // import { DRACOLoader } from "https://esm.sh/three@0.165.0/examples/jsm/loaders/DRACOLoader.js"; // 必要なら
-
-  class GlbViewer extends HTMLElement{
-    static get observedAttributes(){ return ["src","autorotate","exposure","bg"]; }
-    constructor(){
-      super();
-      this.attachShadow({mode:"open"});
-      const style=document.createElement("style");
-      style.textContent=`
-        :host{display:block;contain:content}
-        .wrap{position:relative;inline-size:100%;block-size:100%}
-        canvas{display:block;inline-size:100%;block-size:100%}
-        .hud{position:absolute;inset:auto 8px 8px auto;background:rgba(0,0,0,.45);
-             border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 8px;color:#ddd;font:12px system-ui}
-        .bar{width:120px;height:4px;background:rgba(255,255,255,.18);border-radius:999px;overflow:hidden;margin-top:6px}
-        .bar>i{display:block;height:100%;width:0%;background:#fff;transition:width .15s ease}
-        .error{color:#ffb3c1}
-      `;
-      this._wrap=document.createElement("div"); this._wrap.className="wrap";
-      this._hud=document.createElement("div"); this._hud.className="hud";
-      this._hud.innerHTML=`Loading…<div class="bar"><i></i></div>`; this._bar=this._hud.querySelector("i");
-      this.shadowRoot.append(style,this._wrap,this._hud);
-
-      this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-      this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-      this.renderer.outputColorSpace=THREE.SRGBColorSpace;
-      this.renderer.shadowMap.enabled=true;
-      this._wrap.appendChild(this.renderer.domElement);
-
-      this.scene=new THREE.Scene();
-      this.camera=new THREE.PerspectiveCamera(45,1,0.1,2000);
-      this.camera.position.set(2.5,1.6,3.5);
-
-      this.controls=new OrbitControls(this.camera,this.renderer.domElement);
-      this.controls.enableDamping=true;
-
-      this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
-      const dir=new THREE.DirectionalLight(0xffffff,1.3); dir.position.set(5,8,5); dir.castShadow=true;
-      this.scene.add(dir,new THREE.AmbientLight(0xffffff,0.6));
-
-      const g=new THREE.CircleGeometry(10,64);
-      const m=new THREE.ShadowMaterial({opacity:0.25});
-      this.floor=new THREE.Mesh(g,m); this.floor.rotation.x=-Math.PI/2; this.floor.receiveShadow=true;
-      this.scene.add(this.floor);
-
-      this.loader=new GLTFLoader();
-      // Draco使うなら：
-      // const draco=new DRACOLoader(); draco.setDecoderPath("https://unpkg.com/three@0.165.0/examples/jsm/libs/draco/"); this.loader.setDRACOLoader(draco);
-
-      this._clock=new THREE.Clock();
-      this._resizeObserver=new ResizeObserver(()=>this._resize());
-      this._resizeObserver.observe(this);
-
-      this._renderLoop=this._renderLoop.bind(this);
-    }
-    connectedCallback(){
-      this._applyAttributes();
-      this._resize();
-      this._renderLoop();
-      const src=this.getAttribute("src"); if(src) this._load(src);
-    }
-    disconnectedCallback(){
-      cancelAnimationFrame(this._raf);
-      this._resizeObserver.disconnect();
-      this.controls?.dispose(); this.renderer?.dispose();
-    }
-    attributeChangedCallback(name,_,val){
-      if(name==="src" && val) this._load(val);
-      if(name==="autorotate") this._applyAutorotate();
-      if(name==="exposure") this._applyExposure();
-      if(name==="bg") this._applyBg();
-    }
-    _applyAttributes(){ this._applyAutorotate(); this._applyExposure(); this._applyBg(); }
-    _applyAutorotate(){ this.controls.autoRotate=this.hasAttribute("autorotate"); this.controls.autoRotateSpeed=0.6; }
-    _applyExposure(){
-      const v=parseFloat(this.getAttribute("exposure")||"1.0");
-      this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
-      this.renderer.toneMappingExposure=isFinite(v)?v:1.0;
-    }
-    _applyBg(){ this.scene.background=new THREE.Color(this.getAttribute("bg")||"#0e0e10"); }
-    async _load(url){
-      if(this._root){ this.scene.remove(this._root); this._root=null; }
-      this._mixer=null; this._hud.classList.remove("error");
-      this._hud.innerHTML=`Loading…<div class="bar"><i></i></div>`; this._bar=this._hud.querySelector("i");
-      const onProgress=(xhr)=>{ if(xhr.total){ this._bar.style.width=((xhr.loaded/xhr.total)*100).toFixed(0)+"%"; } };
-      try{
-        const gltf=await new Promise((res,rej)=>this.loader.load(url,res,onProgress,rej));
-        this._hud.textContent="Loaded ✓";
-        const root=gltf.scene;
-        root.traverse(o=>{ if(o.isMesh){ o.castShadow=true;o.receiveShadow=true; if(o.material?.isMeshStandardMaterial) o.material.envMapIntensity=1.0; }});
-        // 原点合わせ & スケーリング
-        const box=new THREE.Box3().setFromObject(root); const size=new THREE.Vector3(); const center=new THREE.Vector3();
-        box.getSize(size); box.getCenter(center); root.position.sub(center);
-        const maxDim=Math.max(size.x,size.y,size.z)||1; const scale=2.2/maxDim; root.scale.setScalar(scale);
-        this.scene.add(root); this._root=root;
-        if(gltf.animations?.length){ this._mixer=new THREE.AnimationMixer(root); gltf.animations.forEach(clip=>this._mixer.clipAction(clip).play()); }
-        // カメラ合わせ
-        const nb=new THREE.Box3().setFromObject(root); const ns=new THREE.Vector3(); const nc=new THREE.Vector3();
-        nb.getSize(ns); nb.getCenter(nc);
-        const fov=this.camera.fov*Math.PI/180; const dist=Math.abs(Math.max(ns.x,ns.y,ns.z)/2/Math.tan(fov/2));
-        this.camera.position.set(nc.x+dist*0.6,nc.y+dist*0.6,nc.z+dist*1.2);
-        this.controls.target.copy(nc); this.controls.update();
-      }catch(e){ console.error(e); this._hud.classList.add("error"); this._hud.textContent="Load error (URL/CORS)"; }
-    }
-    _resize(){
-      const r=this.getBoundingClientRect();
-      const w=Math.max(1,r.width), h=Math.max(1,r.height);
-      this.renderer.setSize(w,h,false);
-      this.camera.aspect=w/h; this.camera.updateProjectionMatrix();
-    }
-    _renderLoop(){
-      const dt=this._clock.getDelta();
-      if(this._mixer) this._mixer.update(dt);
-      this.controls.update();
-      this.renderer.render(this.scene,this.camera);
-      this._raf=requestAnimationFrame(this._renderLoop);
+  <!-- Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
     }
   }
-  customElements.define("glb-viewer",GlbViewer);
-</script>
+  </script>
+
+  <style>
+    body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
+    h1 { text-align:center; padding:20px 0; }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 常に3列 */
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+    }
+    glb-viewer {
+      aspect-ratio: 16/9;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0e0e10;
+    }
+  </style>
+</head>
+<body>
+  <h1>GLB モデルギャラリー</h1>
+
+  <!-- メンテ注意：実際にはそれぞれの行に違うモデルを入れる感じです -->
+  <main class="gallery">
+    <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
+    <glb-viewer src="assets/model.glb" exposure="1.2"></glb-viewer>
+    <glb-viewer src="assets/model.glb"></glb-viewer>
+  </main>
+
+  <!-- Web Component定義（昨日のglb-viewerクラスをそのまま使う） -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
+
+    class GlbViewer extends HTMLElement {
+      static get observedAttributes() { return ['src','autorotate','exposure','bg']; }
+      constructor(){
+        super();
+        this.attachShadow({mode:'open'});
+        const style=document.createElement('style');
+        style.textContent=`:host{display:block;contain:content;}
+          canvas{display:block;width:100%;height:100%}`;
+        this.shadowRoot.append(style);
+
+        this.renderer=new THREE.WebGLRenderer({antialias:true});
+        this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+        this.renderer.outputColorSpace=THREE.SRGBColorSpace;
+        this.shadowRoot.append(this.renderer.domElement);
+
+        this.scene=new THREE.Scene();
+        this.camera=new THREE.PerspectiveCamera(45,1,0.1,2000);
+        this.camera.position.set(2.5,1.6,3.5);
+        this.controls=new OrbitControls(this.camera,this.renderer.domElement);
+        this.controls.enableDamping=true;
+        this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
+        this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
+        this.loader=new GLTFLoader();
+        this.clock=new THREE.Clock();
+        this._resizeObserver=new ResizeObserver(()=>this._resize());
+        this._resizeObserver.observe(this);
+      }
+      connectedCallback(){ this._resize(); this._render(); if(this.getAttribute('src')) this._load(this.getAttribute('src')); }
+      attributeChangedCallback(n,o,v){ if(n==='src'&&v) this._load(v); if(n==='autorotate') this.controls.autoRotate=this.hasAttribute('autorotate'); if(n==='exposure') this.renderer.toneMappingExposure=parseFloat(v)||1.0; if(n==='bg') this.scene.background=new THREE.Color(v); }
+      _load(url){
+        this.loader.load(url,(gltf)=>{
+          if(this._root) this.scene.remove(this._root);
+          this._root=gltf.scene;
+          this.scene.add(this._root);
+          const box=new THREE.Box3().setFromObject(this._root);
+          const center=new THREE.Vector3(); box.getCenter(center); this._root.position.sub(center);
+          const size=new THREE.Vector3(); box.getSize(size); const maxDim=Math.max(size.x,size.y,size.z);
+          const fov=this.camera.fov*Math.PI/180; const dist=Math.abs(maxDim/2/Math.tan(fov/2));
+          this.camera.position.set(center.x+dist*0.6,center.y+dist*0.6,center.z+dist*1.2);
+          this.controls.target.copy(center); this.controls.update();
+        });
+      }
+      _resize(){ const rect=this.getBoundingClientRect(); this.renderer.setSize(rect.width,rect.height,false); this.camera.aspect=rect.width/rect.height; this.camera.updateProjectionMatrix(); }
+      _render(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._render()); }
+    }
+    customElements.define('glb-viewer',GlbViewer);
+  </script>
 </body>
 </html>
-

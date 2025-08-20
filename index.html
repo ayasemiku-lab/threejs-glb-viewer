@@ -1,100 +1,191 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <title>3モデル ギャラリー</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" />
+<title>GLB ギャラリー（クリックで拡大）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Import Map -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
-    }
+<!-- Import Map（examples の 'from "three"' を解決） -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
   }
-  </script>
+}
+</script>
 
-  <style>
-    body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
-    h1 { text-align:center; padding:20px 0; }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 常に3列 */
-      gap: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px 40px;
-    }
-    glb-viewer {
-      aspect-ratio: 16/9;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #0e0e10;
-    }
-  </style>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
+  h1 { text-align:center; padding:20px 0; }
+
+  /* ギャラリー（3列） */
+  .gallery {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px;
+  }
+  glb-viewer {
+    aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#0e0e10;
+    cursor:pointer; outline:1px solid rgba(255,255,255,.08);
+    transition: transform .15s ease, outline-color .15s ease;
+  }
+  glb-viewer:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
+
+  /* モーダル */
+  .modal {
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(0,0,0,.6); backdrop-filter: blur(6px);
+    z-index:9999; padding:24px;
+  }
+  .modal.open { display:grid; }
+  .modal__inner {
+    position:relative; width:min(1200px, 96vw); height:min(80vh, 70vw);
+    background:#0b0b0d; border:1px solid rgba(255,255,255,.12); border-radius:14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5); overflow:hidden;
+  }
+  .modal__close {
+    position:absolute; top:8px; right:8px; border:0; border-radius:10px;
+    background:rgba(255,255,255,.08); color:#fff; padding:8px 10px; cursor:pointer;
+  }
+  .modal__close:hover { background:rgba(255,255,255,.16); }
+  /* 大きいビューアー */
+  #modalViewer { position:absolute; inset:0; }
+  #modalViewer { aspect-ratio:auto; } /* 高さは親が決める */
+  
+  /* スマホ対応：列数を自動調整したいときは下の1行を使ってもOK
+  .gallery { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  */
+</style>
 </head>
 <body>
-  <h1>GLB モデルギャラリー</h1>
+  <h1>GLB モデルギャラリー（クリックで拡大）</h1>
 
-  <!-- メンテ注意：実際にはそれぞれの行に違うモデルを入れる感じです -->
-  <main class="gallery">
-    <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
-    <glb-viewer src="assets/model.glb" exposure="1.2"></glb-viewer>
-    <glb-viewer src="assets/model.glb"></glb-viewer>
+  <main class="gallery" id="gallery">
+    <!-- 小さいカード：同じフォルダ assets/ に置いた3ファイルを使用 -->
+    <glb-viewer src="assets/model1.glb" autorotate></glb-viewer>
+    <glb-viewer src="assets/model2.glb" exposure="1.2"></glb-viewer>
+    <glb-viewer src="assets/model3.glb"></glb-viewer>
   </main>
 
-  <!-- Web Component定義（昨日のglb-viewerクラスをそのまま使う） -->
+  <!-- モーダル：中に“もう1つ”の glb-viewer を置き、src を差し替えて使い回す -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
+      <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
+      <glb-viewer id="modalViewer" autorotate exposure="1.1" bg="#0e0e10"></glb-viewer>
+    </div>
+  </div>
+
+  <!-- Web Component 定義 -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
 
     class GlbViewer extends HTMLElement {
-      static get observedAttributes() { return ['src','autorotate','exposure','bg']; }
+      static get observedAttributes(){ return ['src','autorotate','exposure','bg']; }
       constructor(){
         super();
         this.attachShadow({mode:'open'});
         const style=document.createElement('style');
-        style.textContent=`:host{display:block;contain:content;}
-          canvas{display:block;width:100%;height:100%}`;
+        style.textContent=`:host{display:block;contain:content;} canvas{display:block;width:100%;height:100%}`;
         this.shadowRoot.append(style);
 
         this.renderer=new THREE.WebGLRenderer({antialias:true});
         this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
         this.renderer.outputColorSpace=THREE.SRGBColorSpace;
+        this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
         this.shadowRoot.append(this.renderer.domElement);
 
         this.scene=new THREE.Scene();
+        this.scene.background=new THREE.Color('#0e0e10');
         this.camera=new THREE.PerspectiveCamera(45,1,0.1,2000);
         this.camera.position.set(2.5,1.6,3.5);
+
         this.controls=new OrbitControls(this.camera,this.renderer.domElement);
         this.controls.enableDamping=true;
+
         this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
         this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
+
         this.loader=new GLTFLoader();
-        this.clock=new THREE.Clock();
         this._resizeObserver=new ResizeObserver(()=>this._resize());
         this._resizeObserver.observe(this);
       }
-      connectedCallback(){ this._resize(); this._render(); if(this.getAttribute('src')) this._load(this.getAttribute('src')); }
-      attributeChangedCallback(n,o,v){ if(n==='src'&&v) this._load(v); if(n==='autorotate') this.controls.autoRotate=this.hasAttribute('autorotate'); if(n==='exposure') this.renderer.toneMappingExposure=parseFloat(v)||1.0; if(n==='bg') this.scene.background=new THREE.Color(v); }
+      connectedCallback(){
+        this._resize(); this._loop();
+        if(this.hasAttribute('src')) this._load(this.getAttribute('src'));
+        this._applyAttrs();
+      }
+      attributeChangedCallback(n,_o,v){
+        if(n==='src'&&v) this._load(v);
+        if(n==='autorotate') this.controls.autoRotate=this.hasAttribute('autorotate');
+        if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
+        if(n==='bg'){ this.scene.background=new THREE.Color(v); }
+      }
+      _applyAttrs(){
+        this.controls.autoRotate=this.hasAttribute('autorotate');
+        const e=parseFloat(this.getAttribute('exposure')); if(!isNaN(e)) this.renderer.toneMappingExposure=e;
+        const bg=this.getAttribute('bg'); if(bg) this.scene.background=new THREE.Color(bg);
+      }
       _load(url){
         this.loader.load(url,(gltf)=>{
           if(this._root) this.scene.remove(this._root);
-          this._root=gltf.scene;
-          this.scene.add(this._root);
-          const box=new THREE.Box3().setFromObject(this._root);
-          const center=new THREE.Vector3(); box.getCenter(center); this._root.position.sub(center);
-          const size=new THREE.Vector3(); box.getSize(size); const maxDim=Math.max(size.x,size.y,size.z);
-          const fov=this.camera.fov*Math.PI/180; const dist=Math.abs(maxDim/2/Math.tan(fov/2));
-          this.camera.position.set(center.x+dist*0.6,center.y+dist*0.6,center.z+dist*1.2);
-          this.controls.target.copy(center); this.controls.update();
-        });
+          this._root=gltf.scene; this.scene.add(this._root);
+          const b=new THREE.Box3().setFromObject(this._root), c=new THREE.Vector3(), s=new THREE.Vector3();
+          b.getCenter(c); b.getSize(s); this._root.position.sub(c);
+          const maxDim=Math.max(s.x,s.y,s.z), fov=this.camera.fov*Math.PI/180;
+          const dist=Math.abs(maxDim/2/Math.tan(fov/2));
+          this.camera.position.set(c.x+dist*0.6,c.y+dist*0.6,c.z+dist*1.2);
+          this.controls.target.copy(c); this.controls.update();
+        }, undefined, e=>console.error('Load error:', e));
       }
-      _resize(){ const rect=this.getBoundingClientRect(); this.renderer.setSize(rect.width,rect.height,false); this.camera.aspect=rect.width/rect.height; this.camera.updateProjectionMatrix(); }
-      _render(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._render()); }
+      _resize(){
+        const r=this.getBoundingClientRect(), w=Math.max(1,r.width), h=Math.max(1,r.height);
+        this.renderer.setSize(w,h,false); this.camera.aspect=w/h; this.camera.updateProjectionMatrix();
+      }
+      _loop(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._loop()); }
     }
-    customElements.define('glb-viewer',GlbViewer);
+    customElements.define('glb-viewer', GlbViewer);
+
+    // ========= モーダル制御 =========
+    const modal   = document.getElementById('modal');
+    const modalV  = document.getElementById('modalViewer');
+    const closeBtn= document.getElementById('closeBtn');
+    let lastFocus = null;
+
+    // ギャラリー内の <glb-viewer> をクリックで拡大
+    document.getElementById('gallery').addEventListener('click', (e)=>{
+      const tile = e.target.closest('glb-viewer');
+      if(!tile) return;
+      // クリックされた要素の src/属性をコピー
+      const src = tile.getAttribute('src');
+      modalV.setAttribute('src', src ?? '');
+      // オプション属性をコピー（必要に応じて増やせます）
+      ['autorotate','exposure','bg'].forEach(attr=>{
+        if(tile.hasAttribute(attr)) modalV.setAttribute(attr, tile.getAttribute(attr) ?? '');
+        else modalV.removeAttribute(attr);
+      });
+      openModal(tile);
+    });
+
+    function openModal(originEl){
+      lastFocus = originEl;         // 閉じたときにフォーカスを戻す
+      document.body.style.overflow = 'hidden'; // 背景スクロール固定
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      closeBtn.focus();
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+      if(lastFocus) lastFocus.focus();
+    }
+
+    // 閉じる操作
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); }); // 背景クリックで閉じる
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
   </script>
 </body>
 </html>

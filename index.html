@@ -5,9 +5,6 @@
   <title>3モデル ギャラリー</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Import Map のポリフィル（スマホ対応用） -->
-  <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
-
   <!-- Import Map -->
   <script type="importmap">
   {
@@ -18,58 +15,35 @@
   </script>
 
   <style>
-    * { box-sizing: border-box; }
-
     body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
     h1 { text-align:center; padding:20px 0; }
-
     .gallery {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3列固定 */
+      grid-template-columns: repeat(3, 1fr); /* 常に3列 */
       gap: 16px;
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px 40px;
-      align-items: stretch;
     }
-
-    /* ★ 高さを確実に確保するカード */
-    .card {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 */
+    glb-viewer {
+      aspect-ratio: 16/9;
       border-radius: 12px;
       overflow: hidden;
       background: #0e0e10;
-      outline: 1px solid rgba(255,255,255,.08);
-    }
-
-    .card > glb-viewer {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%; /* カードにフィット */
-    }
-
-    /* スマホ対応（必要なら有効化） */
-    @media (max-width: 900px) {
-      .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 600px) {
-      .gallery { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <h1>GLB モデルギャラリー</h1>
 
+  <!-- メンテ注意：実際にはそれぞれの行に違うモデルを入れる感じです -->
   <main class="gallery">
-    <div class="card"><glb-viewer src="assets/model1.glb" autorotate></glb-viewer></div>
-    <div class="card"><glb-viewer src="assets/model2.glb" exposure="1.2"></glb-viewer></div>
-    <div class="card"><glb-viewer src="assets/model3.glb"></glb-viewer></div>
+    <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
+    <glb-viewer src="assets/model.glb" exposure="1.2"></glb-viewer>
+    <glb-viewer src="assets/model.glb"></glb-viewer>
   </main>
 
+  <!-- Web Component定義（昨日のglb-viewerクラスをそのまま使う） -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
@@ -93,60 +67,32 @@
         this.scene=new THREE.Scene();
         this.camera=new THREE.PerspectiveCamera(45,1,0.1,2000);
         this.camera.position.set(2.5,1.6,3.5);
-
         this.controls=new OrbitControls(this.camera,this.renderer.domElement);
         this.controls.enableDamping=true;
-
         this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
         this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
-
         this.loader=new GLTFLoader();
-        this._resizeObserver = new ResizeObserver(()=>this._resize());
+        this.clock=new THREE.Clock();
+        this._resizeObserver=new ResizeObserver(()=>this._resize());
         this._resizeObserver.observe(this);
-
-        window.addEventListener('resize', ()=>this._resize(), { passive:true });
-        window.addEventListener('orientationchange', ()=>this._resize(), { passive:true });
       }
-      connectedCallback(){
-        this._resize();
-        requestAnimationFrame(()=>this._resize()); // モバイル初回対策
-        this._render();
-        if(this.getAttribute('src')) this._load(this.getAttribute('src'));
-      }
-      attributeChangedCallback(n,o,v){
-        if(n==='src'&&v) this._load(v);
-        if(n==='autorotate') this.controls.autoRotate=this.hasAttribute('autorotate');
-        if(n==='exposure') this.renderer.toneMappingExposure=parseFloat(v)||1.0;
-        if(n==='bg') this.scene.background=new THREE.Color(v);
-      }
+      connectedCallback(){ this._resize(); this._render(); if(this.getAttribute('src')) this._load(this.getAttribute('src')); }
+      attributeChangedCallback(n,o,v){ if(n==='src'&&v) this._load(v); if(n==='autorotate') this.controls.autoRotate=this.hasAttribute('autorotate'); if(n==='exposure') this.renderer.toneMappingExposure=parseFloat(v)||1.0; if(n==='bg') this.scene.background=new THREE.Color(v); }
       _load(url){
         this.loader.load(url,(gltf)=>{
           if(this._root) this.scene.remove(this._root);
           this._root=gltf.scene;
           this.scene.add(this._root);
-
           const box=new THREE.Box3().setFromObject(this._root);
           const center=new THREE.Vector3(); box.getCenter(center); this._root.position.sub(center);
           const size=new THREE.Vector3(); box.getSize(size); const maxDim=Math.max(size.x,size.y,size.z);
-          const fov=this.camera.fov*Math.PI/180;
-          const dist=Math.abs(maxDim/2/Math.tan(fov/2));
+          const fov=this.camera.fov*Math.PI/180; const dist=Math.abs(maxDim/2/Math.tan(fov/2));
           this.camera.position.set(center.x+dist*0.6,center.y+dist*0.6,center.z+dist*1.2);
           this.controls.target.copy(center); this.controls.update();
-        }, undefined, (e)=>console.error('Load error:', e));
+        });
       }
-      _resize(){
-        const rect=this.getBoundingClientRect();
-        const w = Math.max(1, Math.floor(rect.width));
-        const h = Math.max(1, Math.floor(rect.height || this.offsetHeight || 220));
-        this.renderer.setSize(w, h, false);
-        this.camera.aspect = w / h;
-        this.camera.updateProjectionMatrix();
-      }
-      _render(){
-        this.controls.update();
-        this.renderer.render(this.scene,this.camera);
-        requestAnimationFrame(()=>this._render());
-      }
+      _resize(){ const rect=this.getBoundingClientRect(); this.renderer.setSize(rect.width,rect.height,false); this.camera.aspect=rect.width/rect.height; this.camera.updateProjectionMatrix(); }
+      _render(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._render()); }
     }
     customElements.define('glb-viewer',GlbViewer);
   </script>

@@ -26,10 +26,23 @@
   </script>
 
   <style>
-    :root { color-scheme: dark; }
+    :root {
+      --minato-blue: #0078d7;        /* お問い合わせ見出しの青 */
+      --line: #e5e7eb;                /* 罫線色（薄いグレー） */
+      --line-weak: #f3f4f6;           /* 表のラベル側の薄背景 */
+      --text: #333;                   /* 本文色 */
+    }
+
     html { scroll-behavior: smooth; }
     * { box-sizing: border-box; }
-    body { margin:0; font:14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; background:#0e0e10; color:#ddd; }
+
+    /* ====== サイト全体：白背景に ====== */
+    body {
+      margin:0;
+      font:14px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background:#fff;         /* ★白に変更 */
+      color:var(--text);       /* 濃いめの本文色 */
+    }
 
     /* ===== Hero ===== */
     .hero{
@@ -60,7 +73,7 @@
     .hero__cta{
       display:inline-block; padding:12px 20px; border-radius:12px;
       background:#00d3a7; color:#0b0b0d; text-decoration:none; font-weight:700;
-      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
     }
     .hero__cta:hover{ filter: brightness(1.05); }
     .hero__credit{
@@ -69,8 +82,9 @@
       text-shadow:0 2px 6px rgba(0,0,0,.6);
     }
 
-    h2 { text-align:center; padding:20px 0 6px; margin:0; font-weight:800; letter-spacing:.01em; }
+    h2 { text-align:center; padding:20px 0 6px; margin:0; font-weight:800; letter-spacing:.01em; color:#111; }
 
+    /* ===== ギャラリー（白背景サイトに合わせ微調整） ===== */
     .gallery {
       display:grid; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px;
       grid-template-columns: 1fr;
@@ -80,13 +94,15 @@
 
     .card {
       position:relative; width:100%; padding-top:56.25%;
-      border-radius:12px; overflow:hidden; background:#0e0e10;
-      outline:1px solid rgba(255,255,255,.08);
-      cursor:pointer; transition: transform .15s ease, outline-color .15s ease;
+      border-radius:12px; overflow:hidden; background:#0e0e10;   /* モデルの視認性のため黒系 */
+      outline:1px solid rgba(0,0,0,.06);
+      cursor:pointer; transition: transform .15s ease, outline-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
     }
-    .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
+    .card:hover { transform: translateY(-2px); outline-color: rgba(0,0,0,.16); box-shadow: 0 10px 24px rgba(0,0,0,.1); }
     .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
 
+    /* ===== モーダル ===== */
     .modal {
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.6); backdrop-filter: blur(6px); z-index:9999;
@@ -103,7 +119,6 @@
         border:1px solid rgba(255,255,255,.12); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.5);
       }
     }
-
     .modal__back, .modal__close {
       position:absolute; z-index:10000; border:0; border-radius:12px;
       background:rgba(255,255,255,.12);
@@ -113,12 +128,76 @@
     .modal__back  { top:max(10px, env(safe-area-inset-top)); left:max(10px, env(safe-area-inset-left)); }
     .modal__close { top:max(10px, env(safe-area-inset-top)); right:max(10px, env(safe-area-inset-right)); padding:10px 12px; }
     .modal__back:hover, .modal__close:hover { background:rgba(76,175,80,.25); }
-
     #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
+
+    /* ===== お問い合わせ（港区っぽい・外周枠つき） ===== */
+    .contact-minato-outer {
+      max-width:1200px;
+      margin: 40px auto 64px;
+      padding: 20px;                    /* 外周枠の内側余白 */
+      border: 2px solid #cfcfcf;        /* ★外周の枠 */
+      border-radius: 10px;
+      background: #fafafa;              /* わずかに灰色でカードを浮かせる */
+    }
+    @media (max-width: 600px){
+      .contact-minato-outer { padding: 16px; margin: 32px auto 56px; }
+    }
+
+    /* 中身（2段積み・PC左寄せ / SP中央寄せ） */
+    .contact-minato-wrap{
+      display:flex;
+      flex-direction:column;
+      gap: 20px;
+      align-items:flex-start;          /* PC：左寄せ */
+    }
+    @media (max-width: 600px){
+      .contact-minato-wrap{ align-items:center; } /* SP：中央寄せ */
+    }
+
+    /* 各カード（白地） */
+    .contact-card{
+      width: min(800px, 100%);
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .contact-card__head{
+      background: var(--minato-blue);
+      color: #fff;
+      padding: 10px 14px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .contact-card__body{ background: #fff; padding: 6px 0; }
+
+    /* 表（table） */
+    .contact-table{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; color: var(--text);}
+    .contact-table tr + tr td, .contact-table tr + tr th{ border-top: 1px solid var(--line); }
+    .contact-table th, .contact-table td{ padding: 12px 14px; vertical-align: top; }
+    .contact-table th{
+      width: 200px; background: var(--line-weak);
+      text-align: left; white-space: nowrap; font-weight: 700;
+      color:#111;
+    }
+    .contact-table td{ background: #fff; word-break: break-word; }
+
+    @media (max-width: 600px){
+      .contact-table th{ width:auto; display:block; border-top: none !important; border-bottom: 1px solid var(--line); }
+      .contact-table td{ display:block; padding-top: 8px; }
+      .contact-table tr + tr th{ border-top: 1px solid var(--line); }
+    }
   </style>
 </head>
 <body>
 
+  <!-- ===== Hero ===== -->
   <header class="hero">
     <div class="hero__inner">
       <h1 class="hero__title">Tokyo Bay 3D Showcase</h1>
@@ -130,7 +209,7 @@
 
   <h2>Tokyo Bay 3D Showcase</h2>
 
-  <!-- ===== 6枚（各カードで別の分散パス） ===== -->
+  <!-- ===== 6枚（各カードで別の分散パス ＊今は同一の例） ===== -->
   <main class="gallery" id="gallery">
     <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
       <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
@@ -152,6 +231,7 @@
     </div>
   </main>
 
+  <!-- ===== モーダル ===== -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
       <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
@@ -160,19 +240,48 @@
     </div>
   </div>
 
+  <!-- ===== お問い合わせ（外周枠でくくる） ===== -->
+  <section class="contact-minato-outer" aria-label="お問い合わせ全体">
+    <div class="contact-minato-wrap">
+      <!-- 上段：お問い合わせ（所属課室など） -->
+      <div class="contact-card" role="region" aria-labelledby="contact-main-title">
+        <div class="contact-card__head" id="contact-main-title">お問い合わせ</div>
+        <div class="contact-card__body">
+          <table class="contact-table">
+            <tr><th>所属課室</th><td>〇〇部〇〇課〇〇担当</td></tr>
+            <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
+            <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- 下段：このページに関するお問い合わせ（必要なければ削除可） -->
+      <div class="contact-card" role="region" aria-labelledby="contact-page-title">
+        <div class="contact-card__head" id="contact-page-title">このページに関するお問い合わせ</div>
+        <div class="contact-card__body">
+          <table class="contact-table">
+            <tr><th>担当</th><td>ウェブサイト運営担当</td></tr>
+            <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
+            <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Three.js + モーダル制御 ===== -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
 
     class GlbViewer extends HTMLElement {
-      static get observedAttributes(){ return ['src','exposure','bg']; }
+      static get observedAttributes(){ return ['src','bg']; }
       constructor(){
         super();
         this.attachShadow({mode:'open'});
         const style=document.createElement('style');
-        style.textContent=`:host{display:block;contain:content;}
-          canvas{display:block;width:100%;height:100%;touch-action: pan-y;}`;
+        style.textContent=`:host{display:block;contain:content;} canvas{display:block;width:100%;height:100%;touch-action: pan-y;}`;
         this.shadowRoot.append(style);
 
         this.renderer = new THREE.WebGLRenderer({ antialias:true });
@@ -187,7 +296,7 @@
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
-        this.controls.autoRotate = false; // 自動回転は完全無効
+        this.controls.autoRotate = false;
 
         this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
         this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
@@ -205,20 +314,11 @@
         requestAnimationFrame(()=>this._resize());
         this._render();
         if (this.getAttribute('src')) this._load(this.getAttribute('src'));
-        this._applyAttrs();
       }
 
       attributeChangedCallback(n,_o,v){
         if(n==='src' && v) this._load(v);
-        if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
         if(n==='bg'){ this.scene.background = new THREE.Color(v); }
-      }
-
-      _applyAttrs(){
-        const e = parseFloat(this.getAttribute('exposure'));
-        if(!isNaN(e)) this.renderer.toneMappingExposure = e;
-        const bg = this.getAttribute('bg');
-        if(bg) this.scene.background = new THREE.Color(bg);
       }
 
       _load(url){
@@ -289,14 +389,12 @@
         requestAnimationFrame(()=> modalV.refit?.());
       });
     }
-
     function closeModal(){
       modal.classList.remove('open');
       modal.setAttribute('aria-hidden','true');
       document.body.style.overflow = '';
       if(lastFocusEl) lastFocusEl.focus();
     }
-
     backBtn .addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
@@ -305,61 +403,14 @@
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 
-<!-- ===== お問い合わせ（ページ最下部 / PC左寄せ・SP中央寄せ） ===== -->
-<section class="contact-minato-wrap" aria-labelledby="contact-title">
-  <div class="contact-minato">
-    <!-- 上の小枠（見出し） -->
-    <div class="contact-minato__badge" id="contact-title">お問い合わせ</div>
-
-    <!-- 下の表風の大枠 -->
-    <div class="contact-minato__box">
-      <table class="contact-minato__table" role="table" aria-describedby="contact-title">
-        <tr>
-          <th scope="row">所属課室</th>
-          <td>〇〇部〇〇課〇〇担当</td>
-        </tr>
-        <tr>
-          <th scope="row">電話番号</th>
-          <td>03-XXXX-XXXX</td>
-        </tr>
-        <tr>
-          <th scope="row">ファックス番号</th>
-          <td>03-XXXX-XXXX</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</section>
-  
+  <!-- 右クリック禁止 & F12禁止 -->
+  <script>
+    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("keydown", e => {
+      if (e.key === "F12") e.preventDefault();
+      if (e.ctrlKey && e.shiftKey && ["I","C","J","i","c","j"].includes(e.key)) e.preventDefault();
+      if (e.ctrlKey && ["U","u"].includes(e.key)) e.preventDefault();
+    });
+  </script>
 </body>
-  
-<script>
-  // 右クリック禁止
-  document.addEventListener("contextmenu", e => e.preventDefault());
-
-  // F12やCtrl+Shift+Iなどを無効化
-  document.addEventListener("keydown", e => {
-    // F12
-    if (e.key === "F12") {
-      e.preventDefault();
-    }
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i")) {
-      e.preventDefault();
-    }
-    // Ctrl+Shift+C（要素検証）
-    if (e.ctrlKey && e.shiftKey && (e.key === "C" || e.key === "c")) {
-      e.preventDefault();
-    }
-    // Ctrl+Shift+J（コンソール）
-    if (e.ctrlKey && e.shiftKey && (e.key === "J" || e.key === "j")) {
-      e.preventDefault();
-    }
-    // Ctrl+U（ソース表示）
-    if (e.ctrlKey && (e.key === "U" || e.key === "u")) {
-      e.preventDefault();
-    }
-  });
-  
-</script>
 </html>

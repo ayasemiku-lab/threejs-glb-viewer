@@ -305,5 +305,35 @@
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 </body>
+<script>
+  // 右クリック禁止
+  document.addEventListener("contextmenu", e => e.preventDefault());
+
+  // F12やCtrl+Shift+Iなどを無効化
+  document.addEventListener("keydown", e => {
+    // F12
+    if (e.key === "F12") {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i")) {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+C（要素検証）
+    if (e.ctrlKey && e.shiftKey && (e.key === "C" || e.key === "c")) {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+J（コンソール）
+    if (e.ctrlKey && e.shiftKey && (e.key === "J" || e.key === "j")) {
+      e.preventDefault();
+    }
+    // Ctrl+U（ソース表示）
+    if (e.ctrlKey && (e.key === "U" || e.key === "u")) {
+      e.preventDefault();
+    }
+  });
+</script>
+  
 </html>
+
 

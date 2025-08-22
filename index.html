@@ -9,7 +9,6 @@
   <meta property="og:title" content="Tokyo Bay 3D Showcase" />
   <meta property="og:description" content="港の青空の下、未来へと受け継ぐために保存された歴史的遺産を展示する" />
   <meta property="og:type" content="website" />
-  <!-- 公開URLを決めたら下の og:url を実URLに変更してください -->
   <meta property="og:url" content="https://example.com/" />
   <meta property="og:image" content="assets/ogp.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -21,7 +20,7 @@
   <!-- Import Map ポリフィル（iOS Safari 等） -->
   <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
 
-  <!-- Import Map（examples の from 'three' を解決） -->
+  <!-- Import Map -->
   <script type="importmap">
   { "imports": { "three": "https://unpkg.com/three@0.165.0/build/three.module.js" } }
   </script>
@@ -32,7 +31,7 @@
     * { box-sizing: border-box; }
     body { margin:0; font:14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; background:#0e0e10; color:#ddd; }
 
-    /* ===== Hero（青空） ===== */
+    /* ===== Hero ===== */
     .hero{
       position: relative;
       min-height: clamp(52vh, 62svh, 78vh);
@@ -40,7 +39,6 @@
       text-align: center; color: #fff;
       background: url("assets/hero.jpg") center/cover no-repeat fixed;
     }
-    /* iOSで重い場合は上の 'fixed' を外してOK */
     .hero::before{
       content:""; position:absolute; inset:0;
       background:
@@ -71,10 +69,8 @@
       text-shadow:0 2px 6px rgba(0,0,0,.6);
     }
 
-    /* ===== 見出し ===== */
     h2 { text-align:center; padding:20px 0 6px; margin:0; font-weight:800; letter-spacing:.01em; }
 
-    /* ===== ギャラリー（PC:3×2 / タブ:2列 / SP:1列） ===== */
     .gallery {
       display:grid; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px;
       grid-template-columns: 1fr;
@@ -91,7 +87,6 @@
     .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
     .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
 
-    /* ===== モーダル ===== */
     .modal {
       position:fixed; inset:0; display:none; place-items:center;
       background:rgba(0,0,0,.6); backdrop-filter: blur(6px); z-index:9999;
@@ -124,7 +119,6 @@
 </head>
 <body>
 
-  <!-- ===== Hero ===== -->
   <header class="hero">
     <div class="hero__inner">
       <h1 class="hero__title">Tokyo Bay 3D Showcase</h1>
@@ -136,58 +130,55 @@
 
   <h2>Tokyo Bay 3D Showcase</h2>
 
-  <!-- ===== Gallery (例: 6枚でPCは3×2) ===== -->
+  <!-- ===== 6枚（各カードで別の分散パス） ===== -->
   <main class="gallery" id="gallery">
-    <div class="card" data-src="assets/model.glb" data-autorotate="">
-      <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
+    <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
+      <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
     </div>
-    <div class="card" data-src="assets/model.glb" data-exposure="1.2">
-      <glb-viewer src="assets/model.glb" exposure="1.2"></glb-viewer>
+    <div class="card" data-src="assets/models/a4/c1/a4c1e9b7d3f05268bc1a7e94f36ad0c2.glb">
+      <glb-viewer src="assets/models/a4/c1/a4c1e9b7d3f05268bc1a7e94f36ad0c2.glb"></glb-viewer>
     </div>
-    <div class="card" data-src="assets/model.glb">
-      <glb-viewer src="assets/model.glb"></glb-viewer>
+    <div class="card" data-src="assets/models/7b/5e/7b5e3a90f2c14d87a6e3b1d2c9f08456.glb">
+      <glb-viewer src="assets/models/7b/5e/7b5e3a90f2c14d87a6e3b1d2c9f08456.glb"></glb-viewer>
     </div>
-    <div class="card" data-src="assets/model.glb" data-autorotate="">
-      <glb-viewer src="assets/model.glb" autorotate></glb-viewer>
+    <div class="card" data-src="assets/models/c3/d1/c3d1e2f4a5b6978890aa11bbccddeeff.glb">
+      <glb-viewer src="assets/models/c3/d1/c3d1e2f4a5b6978890aa11bbccddeeff.glb"></glb-viewer>
     </div>
-    <div class="card" data-src="assets/model.glb" data-exposure="1.1">
-      <glb-viewer src="assets/model.glb" exposure="1.1"></glb-viewer>
+    <div class="card" data-src="assets/models/12/ab/12ab34cd56ef7890a1b2c3d4e5f60123.glb">
+      <glb-viewer src="assets/models/12/ab/12ab34cd56ef7890a1b2c3d4e5f60123.glb"></glb-viewer>
     </div>
-    <div class="card" data-src="assets/model.glb">
-      <glb-viewer src="assets/model.glb"></glb-viewer>
+    <div class="card" data-src="assets/models/e7/d5/e7d5c2b1a0f93468c1d2e3f4b5a69788.glb">
+      <glb-viewer src="assets/models/e7/d5/e7d5c2b1a0f93468c1d2e3f4b5a69788.glb"></glb-viewer>
     </div>
   </main>
 
-  <!-- ===== Modal ===== -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
       <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
       <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
-      <glb-viewer id="modalViewer" bg="#0e0e10" autorotate></glb-viewer>
+      <glb-viewer id="modalViewer" bg="#0e0e10"></glb-viewer>
     </div>
   </div>
 
-  <!-- ===== Web Component 定義 + モーダル制御 ===== -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
     import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
 
-    /* ---------- <glb-viewer> 定義 ---------- */
     class GlbViewer extends HTMLElement {
-      static get observedAttributes(){ return ['src','autorotate','exposure','bg']; }
+      static get observedAttributes(){ return ['src','exposure','bg']; }
       constructor(){
         super();
         this.attachShadow({mode:'open'});
         const style=document.createElement('style');
         style.textContent=`:host{display:block;contain:content;}
-          canvas{display:block;width:100%;height:100%;touch-action: pan-y;}`; /* SPの縦スクロール優先 */
+          canvas{display:block;width:100%;height:100%;touch-action: pan-y;}`;
         this.shadowRoot.append(style);
 
         this.renderer = new THREE.WebGLRenderer({ antialias:true });
         this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        this.renderer.domElement.style.touchAction = 'pan-y'; /* 念のため直接指定 */
+        this.renderer.domElement.style.touchAction = 'pan-y';
         this.shadowRoot.append(this.renderer.domElement);
 
         this.scene = new THREE.Scene();
@@ -196,7 +187,7 @@
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
-        this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+        this.controls.autoRotate = false; // 自動回転は完全無効
 
         this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
         this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
@@ -213,20 +204,17 @@
         this._resize();
         requestAnimationFrame(()=>this._resize());
         this._render();
-
         if (this.getAttribute('src')) this._load(this.getAttribute('src'));
         this._applyAttrs();
       }
 
       attributeChangedCallback(n,_o,v){
         if(n==='src' && v) this._load(v);
-        if(n==='autorotate') this.controls.autoRotate = this.hasAttribute('autorotate');
         if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
         if(n==='bg'){ this.scene.background = new THREE.Color(v); }
       }
 
       _applyAttrs(){
-        this.controls.autoRotate = this.hasAttribute('autorotate');
         const e = parseFloat(this.getAttribute('exposure'));
         if(!isNaN(e)) this.renderer.toneMappingExposure = e;
         const bg = this.getAttribute('bg');
@@ -237,7 +225,7 @@
         this.loader.load(url, (gltf)=>{
           if(this._root) this.scene.remove(this._root);
           this._root = gltf.scene; this.scene.add(this._root);
-          this.refit(); // ロード後にフレーミング
+          this.refit();
         }, undefined, e=>console.error('Load error:', e));
       }
 
@@ -273,7 +261,7 @@
     }
     customElements.define('glb-viewer', GlbViewer);
 
-    /* ---------- モーダル制御（クリックで拡大） ---------- */
+    /* モーダル制御 */
     const gallery   = document.getElementById('gallery');
     const modal     = document.getElementById('modal');
     const modalV    = document.getElementById('modalViewer');
@@ -281,27 +269,12 @@
     const backBtn   = document.getElementById('backBtn');
     let lastFocusEl = null;
 
-    // カードクリックで開く
     gallery.addEventListener('click', (e)=>{
       const card = e.target.closest('.card');
       if(!card) return;
-
       const viewer = card.querySelector('glb-viewer');
       const src = card.dataset.src || viewer?.getAttribute('src');
       if(src) modalV.setAttribute('src', src);
-
-      ['autorotate','exposure','bg'].forEach(attr=>{
-        const val = card.dataset[attr] ?? viewer?.getAttribute(attr);
-        if(attr === 'autorotate') {
-          if(val !== undefined) modalV.setAttribute('autorotate','');
-          else modalV.removeAttribute('autorotate');
-        } else if(val != null) {
-          modalV.setAttribute(attr, val);
-        } else {
-          modalV.removeAttribute(attr);
-        }
-      });
-
       openModal(card);
     });
 
@@ -311,7 +284,6 @@
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
       backBtn.focus();
-
       requestAnimationFrame(()=> {
         modalV.refit?.();
         requestAnimationFrame(()=> modalV.refit?.());

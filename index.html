@@ -304,28 +304,34 @@
     window.addEventListener('resize', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
-</body>
-  <!-- ===== お問い合わせ（ページ最下部） ===== -->
-<section class="contact-wrap" aria-labelledby="contact-title">
-  <div class="contact">
-    <!-- 見出しの枠 -->
-    <div class="contact__badge" id="contact-title">お問い合わせ</div>
 
-    <!-- 表風の枠 -->
-    <div class="contact__box">
-      <div class="contact__grid">
-        <div class="contact__label">所属課室</div>
-        <div class="contact__value">〇〇部〇〇課〇〇担当</div>
+<!-- ===== お問い合わせ（ページ最下部 / PC左寄せ・SP中央寄せ） ===== -->
+<section class="contact-minato-wrap" aria-labelledby="contact-title">
+  <div class="contact-minato">
+    <!-- 上の小枠（見出し） -->
+    <div class="contact-minato__badge" id="contact-title">お問い合わせ</div>
 
-        <div class="contact__label">電話番号</div>
-        <div class="contact__value">03-XXXX-XXXX</div>
-
-        <div class="contact__label">ファックス番号</div>
-        <div class="contact__value">03-XXXX-XXXX</div>
-      </div>
+    <!-- 下の表風の大枠 -->
+    <div class="contact-minato__box">
+      <table class="contact-minato__table" role="table" aria-describedby="contact-title">
+        <tr>
+          <th scope="row">所属課室</th>
+          <td>〇〇部〇〇課〇〇担当</td>
+        </tr>
+        <tr>
+          <th scope="row">電話番号</th>
+          <td>03-XXXX-XXXX</td>
+        </tr>
+        <tr>
+          <th scope="row">ファックス番号</th>
+          <td>03-XXXX-XXXX</td>
+        </tr>
+      </table>
     </div>
   </div>
 </section>
+  
+</body>
   
 <script>
   // 右クリック禁止
@@ -357,6 +363,7 @@
   
 </script>
 </html>
+
 
 
 

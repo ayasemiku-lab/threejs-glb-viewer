@@ -26,79 +26,111 @@
   </script>
 
   <style>
-    body { margin:0; font:14px/1.5 system-ui, sans-serif; background:#0e0e10; color:#ddd; }
-    h1 { text-align:center; padding:20px 0; }
-    .gallery { display:grid; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px; grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .gallery { grid-template-columns: 1fr; } }
-    .card { position:relative; width:100%; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#0e0e10; cursor:pointer; }
-    .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
-    .modal { position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.6); z-index:9999; }
-    .modal.open { display:grid; }
-    .modal__inner { position:relative; width:100vw; height:100vh; background:#0b0b0d; overflow:hidden; }
-    .modal__back, .modal__close { position:absolute; border:0; border-radius:12px; background:rgba(255,255,255,.12); color:#4CAF50; font-weight:600; cursor:pointer; }
-    .modal__back { top:10px; left:10px; padding:10px 14px; }
-    .modal__close { top:10px; right:10px; padding:10px 12px; }
-    #modalViewer { position:absolute; inset:0; width:100%; height:100%; }
+    :root { color-scheme: dark; }
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; background:#0e0e10; color:#ddd; }
 
-    /* ===== Contact (Minato-like light theme) ===== */
-    :root {
-      --minato-blue: #0078d7;
-      --minato-blue-weak: #e6f1fb;
-      --line: #e5e7eb;
-      --line-weak: #f0f2f5;
-      --text-dark: #1a1a1a;
+    /* ===== Hero ===== */
+    .hero{
+      position: relative;
+      min-height: clamp(52vh, 62svh, 78vh);
+      display: grid; place-items: center;
+      text-align: center; color: #fff;
+      background: url("assets/hero.jpg") center/cover no-repeat fixed;
     }
-    .contact-minato-wrap{
-      max-width:1200px;
-      margin: 32px auto 64px;
-      padding: 0 20px;
-      display:flex;
-      flex-direction:column;
-      gap: 20px;
-      align-items: flex-start;
+    .hero::before{
+      content:""; position:absolute; inset:0;
+      background:
+        radial-gradient(60% 60% at 50% 40%, rgba(0,0,0,.25), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,.25) 40%, rgba(0,0,0,.5));
     }
-    @media (max-width: 600px){
-      .contact-minato-wrap{ align-items: center; }
+    .hero__inner{ position: relative; z-index: 1; padding: 0 24px; }
+    .hero__title{
+      margin:0 0 8px;
+      font-size: clamp(28px, 5.2vw, 56px);
+      font-weight: 800; letter-spacing:.02em;
+      text-shadow: 0 4px 18px rgba(0,0,0,.35);
     }
-    .contact-card{
-      width: min(800px, 100%);
-      background: #fff;
-      color: var(--text-dark);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.12);
-      overflow: hidden;
+    .hero__lead{
+      margin: 6px 0 22px; opacity:.95;
+      font-size: clamp(14px, 2.2vw, 18px);
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
     }
-    .contact-card__head{
-      background: var(--minato-blue);
-      color: #fff;
-      padding: 10px 14px;
-      font-weight: 700;
-      letter-spacing: .01em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--line);
+    .hero__cta{
+      display:inline-block; padding:12px 20px; border-radius:12px;
+      background:#00d3a7; color:#0b0b0d; text-decoration:none; font-weight:700;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
     }
-    .contact-card__body{ background: #fff; padding: 6px 0; }
-    .contact-table{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; color: var(--text-dark);}
-    .contact-table tr + tr td, .contact-table tr + tr th{ border-top: 1px solid var(--line); }
-    .contact-table th, .contact-table td{ padding: 12px 14px; vertical-align: top; }
-    .contact-table th{ width: 200px; background: var(--line-weak); text-align: left; white-space: nowrap; font-weight: 700; }
-    .contact-table td{ background: #fff; word-break: break-word; }
-    @media (max-width: 600px){
-      .contact-table th{ width:auto; display:block; border-top: none !important; border-bottom: 1px solid var(--line); }
-      .contact-table td{ display:block; padding-top: 8px; }
-      .contact-table tr + tr th{ border-top: 1px solid var(--line); }
+    .hero__cta:hover{ filter: brightness(1.05); }
+    .hero__credit{
+      position:absolute; right:12px; bottom:10px; z-index:1;
+      font-size: 12px; color: rgba(255,255,255,.85);
+      text-shadow:0 2px 6px rgba(0,0,0,.6);
     }
+
+    h2 { text-align:center; padding:20px 0 6px; margin:0; font-weight:800; letter-spacing:.01em; }
+
+    .gallery {
+      display:grid; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 600px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1024px){ .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+    .card {
+      position:relative; width:100%; padding-top:56.25%;
+      border-radius:12px; overflow:hidden; background:#0e0e10;
+      outline:1px solid rgba(255,255,255,.08);
+      cursor:pointer; transition: transform .15s ease, outline-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); outline-color: rgba(255,255,255,.22); }
+    .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
+
+    .modal {
+      position:fixed; inset:0; display:none; place-items:center;
+      background:rgba(0,0,0,.6); backdrop-filter: blur(6px); z-index:9999;
+    }
+    .modal.open { display:grid; }
+
+    .modal__inner {
+      position:relative; width: 100vw; width: 100svw; height:100vh; height:100svh;
+      border:none; border-radius:0; background:#0b0b0d; overflow:hidden;
+    }
+    @media (min-width: 900px) and (min-height: 700px) {
+      .modal__inner {
+        width: min(1200px, 96svw); height: min(90svh, 70svw);
+        border:1px solid rgba(255,255,255,.12); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.5);
+      }
+    }
+
+    .modal__back, .modal__close {
+      position:absolute; z-index:10000; border:0; border-radius:12px;
+      background:rgba(255,255,255,.12);
+      color:#4CAF50 !important; -webkit-text-fill-color:#4CAF50 !important;
+      padding:10px 14px; cursor:pointer; font-weight:600;
+    }
+    .modal__back  { top:max(10px, env(safe-area-inset-top)); left:max(10px, env(safe-area-inset-left)); }
+    .modal__close { top:max(10px, env(safe-area-inset-top)); right:max(10px, env(safe-area-inset-right)); padding:10px 12px; }
+    .modal__back:hover, .modal__close:hover { background:rgba(76,175,80,.25); }
+
+    #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
   </style>
 </head>
 <body>
 
-  <h1>Tokyo Bay 3D Showcase</h1>
+  <header class="hero">
+    <div class="hero__inner">
+      <h1 class="hero__title">Tokyo Bay 3D Showcase</h1>
+      <p class="hero__lead">港の青空の下、未来へと受け継ぐために保存された歴史的遺産を展示する</p>
+      <a href="#gallery" class="hero__cta">ギャラリーを見る</a>
+    </div>
+    <figcaption class="hero__credit">Photo: Tokyo Bay — via Unsplash / Pexels</figcaption>
+  </header>
 
-  <!-- ===== 6枚（ランダム名＆分散パス例） ===== -->
+  <h2>Tokyo Bay 3D Showcase</h2>
+
+  <!-- ===== 6枚（各カードで別の分散パス） ===== -->
   <main class="gallery" id="gallery">
     <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
       <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
@@ -112,48 +144,21 @@
     <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
       <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
     </div>
-      <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
+    <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
       <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
     </div>
-      <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
+    <div class="card" data-src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb">
       <glb-viewer src="assets/models/9f/2a/9f2a3c7b4e85d1a0b6c3e8f5a1d24739.glb"></glb-viewer>
     </div>
   </main>
 
-  <!-- モーダル -->
-  <div class="modal" id="modal">
-    <div class="modal__inner">
-      <button class="modal__back"  id="backBtn">← 戻る</button>
-      <button class="modal__close" id="closeBtn">✕</button>
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
+      <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
+      <button class="modal__close" id="closeBtn" aria-label="閉じる (Esc)">✕</button>
       <glb-viewer id="modalViewer" bg="#0e0e10"></glb-viewer>
     </div>
   </div>
-
-  <!-- ===== お問い合わせブロック ===== -->
-  <section class="contact-minato-wrap" aria-label="お問い合わせ">
-    <!-- 上：お問い合わせ -->
-    <div class="contact-card" role="region" aria-labelledby="contact-main-title">
-      <div class="contact-card__head" id="contact-main-title">お問い合わせ</div>
-      <div class="contact-card__body">
-        <table class="contact-table">
-          <tr><th>所属課室</th><td>〇〇部〇〇課〇〇担当</td></tr>
-          <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
-          <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
-        </table>
-      </div>
-    </div>
-    <!-- 下：このページに関するお問い合わせ -->
-    <div class="contact-card" role="region" aria-labelledby="contact-page-title">
-      <div class="contact-card__head" id="contact-page-title">このページに関するお問い合わせ</div>
-      <div class="contact-card__body">
-        <table class="contact-table">
-          <tr><th>担当</th><td>ウェブサイト運営担当</td></tr>
-          <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
-          <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
-        </table>
-      </div>
-    </div>
-  </section>
 
   <script type="module">
     import * as THREE from 'three';
@@ -161,50 +166,200 @@
     import { GLTFLoader } from 'https://unpkg.com/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
 
     class GlbViewer extends HTMLElement {
-      static get observedAttributes(){ return ['src','bg']; }
+      static get observedAttributes(){ return ['src','exposure','bg']; }
       constructor(){
         super();
         this.attachShadow({mode:'open'});
         const style=document.createElement('style');
-        style.textContent=`:host{display:block;contain:content;} canvas{width:100%;height:100%;}`;
+        style.textContent=`:host{display:block;contain:content;}
+          canvas{display:block;width:100%;height:100%;touch-action: pan-y;}`;
         this.shadowRoot.append(style);
-        this.renderer=new THREE.WebGLRenderer({antialias:true});
+
+        this.renderer = new THREE.WebGLRenderer({ antialias:true });
         this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-        this.renderer.outputColorSpace=THREE.SRGBColorSpace;
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        this.renderer.domElement.style.touchAction = 'pan-y';
         this.shadowRoot.append(this.renderer.domElement);
-        this.scene=new THREE.Scene();
-        this.camera=new THREE.PerspectiveCamera(45,1,0.1,2000);
-        this.controls=new OrbitControls(this.camera,this.renderer.domElement);
-        this.controls.enableDamping=true;
-        this.controls.autoRotate=false;
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(45,1,0.1,2000);
+        this.camera.position.set(2.5,1.6,3.5);
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.autoRotate = false; // 自動回転は完全無効
+
         this.scene.add(new THREE.HemisphereLight(0xffffff,0x222233,1.0));
         this.scene.add(new THREE.AmbientLight(0xffffff,0.6));
-        this.loader=new GLTFLoader();
-        new ResizeObserver(()=>this._resize()).observe(this);
+
+        this.loader = new GLTFLoader();
+
+        this._resizeObserver = new ResizeObserver(()=>this._resize());
+        this._resizeObserver.observe(this);
+        window.addEventListener('resize', ()=>this._resize(), { passive:true });
+        window.addEventListener('orientationchange', ()=>this._resize(), { passive:true });
       }
-      connectedCallback(){ this._resize(); this._render(); if(this.getAttribute('src')) this._load(this.getAttribute('src')); }
-      attributeChangedCallback(n,o,v){ if(n==='src'&&v) this._load(v); }
-      _load(url){ this.loader.load(url,gltf=>{ if(this._root) this.scene.remove(this._root); this._root=gltf.scene; this.scene.add(this._root); this.refit(); }); }
-      refit(){ if(!this._root) return; const b=new THREE.Box3().setFromObject(this._root), c=new THREE.Vector3(); b.getCenter(c); this._root.position.sub(c); this.controls.target.copy(c); this.camera.position.set(c.x+3,c.y+2,c.z+4); }
-      _resize(){ const r=this.getBoundingClientRect(); this.renderer.setSize(r.width,r.height); this.camera.aspect=r.width/r.height; this.camera.updateProjectionMatrix(); }
-      _render(){ this.controls.update(); this.renderer.render(this.scene,this.camera); requestAnimationFrame(()=>this._render()); }
+
+      connectedCallback(){
+        this._resize();
+        requestAnimationFrame(()=>this._resize());
+        this._render();
+        if (this.getAttribute('src')) this._load(this.getAttribute('src'));
+        this._applyAttrs();
+      }
+
+      attributeChangedCallback(n,_o,v){
+        if(n==='src' && v) this._load(v);
+        if(n==='exposure'){ const e=parseFloat(v); if(!isNaN(e)) this.renderer.toneMappingExposure=e; }
+        if(n==='bg'){ this.scene.background = new THREE.Color(v); }
+      }
+
+      _applyAttrs(){
+        const e = parseFloat(this.getAttribute('exposure'));
+        if(!isNaN(e)) this.renderer.toneMappingExposure = e;
+        const bg = this.getAttribute('bg');
+        if(bg) this.scene.background = new THREE.Color(bg);
+      }
+
+      _load(url){
+        this.loader.load(url, (gltf)=>{
+          if(this._root) this.scene.remove(this._root);
+          this._root = gltf.scene; this.scene.add(this._root);
+          this.refit();
+        }, undefined, e=>console.error('Load error:', e));
+      }
+
+      refit(){
+        this._resize();
+        if(!this._root){ return; }
+        const b = new THREE.Box3().setFromObject(this._root);
+        const c = new THREE.Vector3(), s = new THREE.Vector3();
+        b.getCenter(c); b.getSize(s);
+        this._root.position.sub(c);
+        const maxDim = Math.max(s.x, s.y, s.z) || 1.0;
+        const fov = this.camera.fov * Math.PI/180;
+        const dist = Math.abs(maxDim/2/Math.tan(fov/2));
+        this.camera.position.set(c.x + dist*0.6, c.y + dist*0.6, c.z + dist*1.2);
+        this.controls.target.copy(c);
+        this.controls.update();
+      }
+
+      _resize(){
+        const r = this.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(r.width));
+        const h = Math.max(1, Math.floor(r.height || this.offsetHeight || 220));
+        this.renderer.setSize(w,h,false);
+        this.camera.aspect = w/h;
+        this.camera.updateProjectionMatrix();
+      }
+
+      _render(){
+        this.controls.update();
+        this.renderer.render(this.scene,this.camera);
+        requestAnimationFrame(()=>this._render());
+      }
     }
     customElements.define('glb-viewer', GlbViewer);
 
-    const gallery=document.getElementById('gallery'), modal=document.getElementById('modal'), modalV=document.getElementById('modalViewer');
-    const backBtn=document.getElementById('backBtn'), closeBtn=document.getElementById('closeBtn');
-    gallery.addEventListener('click', e=>{ const card=e.target.closest('.card'); if(!card)return; modalV.setAttribute('src',card.dataset.src); modal.classList.add('open'); });
-    function closeModal(){ modal.classList.remove('open'); }
-    backBtn.addEventListener('click', closeModal); closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+    /* モーダル制御 */
+    const gallery   = document.getElementById('gallery');
+    const modal     = document.getElementById('modal');
+    const modalV    = document.getElementById('modalViewer');
+    const closeBtn  = document.getElementById('closeBtn');
+    const backBtn   = document.getElementById('backBtn');
+    let lastFocusEl = null;
 
-    // 右クリック禁止 & F12禁止
-    document.addEventListener("contextmenu", e => e.preventDefault());
-    document.addEventListener("keydown", e => {
-      if (e.key === "F12") e.preventDefault();
-      if (e.ctrlKey && e.shiftKey && ["I","C","J","i","c","j"].includes(e.key)) e.preventDefault();
-      if (e.ctrlKey && ["U","u"].includes(e.key)) e.preventDefault();
+    gallery.addEventListener('click', (e)=>{
+      const card = e.target.closest('.card');
+      if(!card) return;
+      const viewer = card.querySelector('glb-viewer');
+      const src = card.dataset.src || viewer?.getAttribute('src');
+      if(src) modalV.setAttribute('src', src);
+      openModal(card);
     });
+
+    function openModal(origin){
+      lastFocusEl = origin;
+      document.body.style.overflow = 'hidden';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      backBtn.focus();
+      requestAnimationFrame(()=> {
+        modalV.refit?.();
+        requestAnimationFrame(()=> modalV.refit?.());
+      });
+    }
+
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+      if(lastFocusEl) lastFocusEl.focus();
+    }
+
+    backBtn .addEventListener('click', closeModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+    window.addEventListener('resize', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
+    window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
+
+<!-- ===== お問い合わせ（ページ最下部 / PC左寄せ・SP中央寄せ） ===== -->
+<section class="contact-minato-wrap" aria-labelledby="contact-title">
+  <div class="contact-minato">
+    <!-- 上の小枠（見出し） -->
+    <div class="contact-minato__badge" id="contact-title">お問い合わせ</div>
+
+    <!-- 下の表風の大枠 -->
+    <div class="contact-minato__box">
+      <table class="contact-minato__table" role="table" aria-describedby="contact-title">
+        <tr>
+          <th scope="row">所属課室</th>
+          <td>〇〇部〇〇課〇〇担当</td>
+        </tr>
+        <tr>
+          <th scope="row">電話番号</th>
+          <td>03-XXXX-XXXX</td>
+        </tr>
+        <tr>
+          <th scope="row">ファックス番号</th>
+          <td>03-XXXX-XXXX</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</section>
+  
 </body>
+  
+<script>
+  // 右クリック禁止
+  document.addEventListener("contextmenu", e => e.preventDefault());
+
+  // F12やCtrl+Shift+Iなどを無効化
+  document.addEventListener("keydown", e => {
+    // F12
+    if (e.key === "F12") {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i")) {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+C（要素検証）
+    if (e.ctrlKey && e.shiftKey && (e.key === "C" || e.key === "c")) {
+      e.preventDefault();
+    }
+    // Ctrl+Shift+J（コンソール）
+    if (e.ctrlKey && e.shiftKey && (e.key === "J" || e.key === "j")) {
+      e.preventDefault();
+    }
+    // Ctrl+U（ソース表示）
+    if (e.ctrlKey && (e.key === "U" || e.key === "u")) {
+      e.preventDefault();
+    }
+  });
+  
+</script>
 </html>

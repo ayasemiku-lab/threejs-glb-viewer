@@ -305,6 +305,28 @@
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 </body>
+  <!-- ===== お問い合わせ（ページ最下部） ===== -->
+<section class="contact-wrap" aria-labelledby="contact-title">
+  <div class="contact">
+    <!-- 見出しの枠 -->
+    <div class="contact__badge" id="contact-title">お問い合わせ</div>
+
+    <!-- 表風の枠 -->
+    <div class="contact__box">
+      <div class="contact__grid">
+        <div class="contact__label">所属課室</div>
+        <div class="contact__value">〇〇部〇〇課〇〇担当</div>
+
+        <div class="contact__label">電話番号</div>
+        <div class="contact__value">03-XXXX-XXXX</div>
+
+        <div class="contact__label">ファックス番号</div>
+        <div class="contact__value">03-XXXX-XXXX</div>
+      </div>
+    </div>
+  </div>
+</section>
+  
 <script>
   // 右クリック禁止
   document.addEventListener("contextmenu", e => e.preventDefault());
@@ -332,8 +354,9 @@
       e.preventDefault();
     }
   });
-</script>
   
+</script>
 </html>
+
 
 

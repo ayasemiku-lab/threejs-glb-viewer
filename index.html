@@ -15,7 +15,7 @@
   <meta name="twitter:title" content="Tokyo Bay 3D Showcase" />
   <meta name="twitter:description" content="港の青空の下、未来へと受け継ぐために保存された歴史的遺産を展示する" />
   <meta name="twitter:image" content="assets/ogp.jpg" />
-  <meta name="theme-color" content="#00d3a7" />
+  <meta name="theme-color" content="#ffffff" />
 
   <!-- Import Map ポリフィル（iOS Safari 等） -->
   <script async src="https://unpkg.com/es-module-shims@1.10.0/dist/es-module-shims.min.js"></script>
@@ -27,24 +27,24 @@
 
   <style>
     :root {
-      --minato-blue: #0078d7;        /* お問い合わせ見出しの青 */
-      --line: #e5e7eb;                /* 罫線色（薄いグレー） */
-      --line-weak: #f3f4f6;           /* 表のラベル側の薄背景 */
-      --text: #333;                   /* 本文色 */
+      --text: #222;        /* 本文色（濃いグレー） */
+      --muted: #444;       /* 少し薄い文字色 */
+      --line: #ddd;        /* 罫線色（薄いグレー） */
+      --line-soft: #eee;   /* さらに薄い罫線 */
     }
 
     html { scroll-behavior: smooth; }
     * { box-sizing: border-box; }
 
-    /* ====== サイト全体：白背景に ====== */
+    /* ====== サイト全体：白背景 ====== */
     body {
       margin:0;
-      font:14px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      background:#fff;         /* ★白に変更 */
-      color:var(--text);       /* 濃いめの本文色 */
+      font:14px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background:#fff;
+      color:var(--text);
     }
 
-    /* ===== Hero ===== */
+    /* ===== Hero（写真上に白サイトでも読みやすいよう重ねる） ===== */
     .hero{
       position: relative;
       min-height: clamp(52vh, 62svh, 78vh);
@@ -66,25 +66,28 @@
       text-shadow: 0 4px 18px rgba(0,0,0,.35);
     }
     .hero__lead{
-      margin: 6px 0 22px; opacity:.95;
+      margin: 6px 0 22px; opacity:.97;
       font-size: clamp(14px, 2.2vw, 18px);
       text-shadow: 0 2px 10px rgba(0,0,0,.35);
     }
     .hero__cta{
-      display:inline-block; padding:12px 20px; border-radius:12px;
-      background:#00d3a7; color:#0b0b0d; text-decoration:none; font-weight:700;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      display:inline-block; padding:12px 20px; border-radius:10px;
+      background:#ffffff; color:#111; text-decoration:none; font-weight:700;
+      border:1px solid var(--line);
     }
-    .hero__cta:hover{ filter: brightness(1.05); }
+    .hero__cta:hover{ filter: brightness(1.03); }
     .hero__credit{
       position:absolute; right:12px; bottom:10px; z-index:1;
-      font-size: 12px; color: rgba(255,255,255,.85);
+      font-size: 12px; color: rgba(255,255,255,.9);
       text-shadow:0 2px 6px rgba(0,0,0,.6);
     }
 
-    h2 { text-align:center; padding:20px 0 6px; margin:0; font-weight:800; letter-spacing:.01em; color:#111; }
+    h2 {
+      text-align:center; padding:28px 0 8px; margin:0;
+      font-weight:800; letter-spacing:.01em; color:#111;
+    }
 
-    /* ===== ギャラリー（白背景サイトに合わせ微調整） ===== */
+    /* ===== ギャラリー（白背景サイトに合わせ控えめ） ===== */
     .gallery {
       display:grid; gap:16px; max-width:1200px; margin:0 auto; padding:0 20px 40px;
       grid-template-columns: 1fr;
@@ -94,104 +97,98 @@
 
     .card {
       position:relative; width:100%; padding-top:56.25%;
-      border-radius:12px; overflow:hidden; background:#0e0e10;   /* モデルの視認性のため黒系 */
-      outline:1px solid rgba(0,0,0,.06);
-      cursor:pointer; transition: transform .15s ease, outline-color .15s ease, box-shadow .15s ease;
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      border-radius:8px; overflow:hidden;
+      background:#0e0e10;   /* モデルの視認性のため黒系 */
+      border:1px solid var(--line);
     }
-    .card:hover { transform: translateY(-2px); outline-color: rgba(0,0,0,.16); box-shadow: 0 10px 24px rgba(0,0,0,.1); }
     .card > glb-viewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
 
-    /* ===== モーダル ===== */
+    /* ===== モーダル（フラット寄り。派手な装飾なし） ===== */
     .modal {
       position:fixed; inset:0; display:none; place-items:center;
-      background:rgba(0,0,0,.6); backdrop-filter: blur(6px); z-index:9999;
+      background:rgba(0,0,0,.55); z-index:9999;
     }
     .modal.open { display:grid; }
 
     .modal__inner {
       position:relative; width: 100vw; width: 100svw; height:100vh; height:100svh;
       border:none; border-radius:0; background:#0b0b0d; overflow:hidden;
+      border-top:1px solid var(--line-soft);
+      border-bottom:1px solid var(--line-soft);
     }
     @media (min-width: 900px) and (min-height: 700px) {
       .modal__inner {
         width: min(1200px, 96svw); height: min(90svh, 70svw);
-        border:1px solid rgba(255,255,255,.12); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.5);
+        border:1px solid var(--line);
+        border-radius:8px;
       }
     }
     .modal__back, .modal__close {
-      position:absolute; z-index:10000; border:0; border-radius:12px;
-      background:rgba(255,255,255,.12);
-      color:#4CAF50 !important; -webkit-text-fill-color:#4CAF50 !important;
-      padding:10px 14px; cursor:pointer; font-weight:600;
+      position:absolute; z-index:10000; border:1px solid var(--line); border-radius:6px;
+      background:#fff; color:#111;
+      padding:8px 12px; cursor:pointer; font-weight:700;
     }
     .modal__back  { top:max(10px, env(safe-area-inset-top)); left:max(10px, env(safe-area-inset-left)); }
-    .modal__close { top:max(10px, env(safe-area-inset-top)); right:max(10px, env(safe-area-inset-right)); padding:10px 12px; }
-    .modal__back:hover, .modal__close:hover { background:rgba(76,175,80,.25); }
+    .modal__close { top:max(10px, env(safe-area-inset-top)); right:max(10px, env(safe-area-inset-right)); }
     #modalViewer { position:absolute; inset:0; display:block; width:100%; height:100%; }
 
-    /* ===== お問い合わせ（港区っぽい・外周枠つき） ===== */
-    .contact-minato-outer {
-      max-width:1200px;
+    /* ===== お問い合わせ：港区っぽい“フラット＋白地＋薄い罫線” ===== */
+    .contact-minato-simple {
+      max-width: 1200px;
       margin: 40px auto 64px;
-      padding: 20px;                    /* 外周枠の内側余白 */
-      border: 2px solid #cfcfcf;        /* ★外周の枠 */
-      border-radius: 10px;
-      background: #fafafa;              /* わずかに灰色でカードを浮かせる */
-    }
-    @media (max-width: 600px){
-      .contact-minato-outer { padding: 16px; margin: 32px auto 56px; }
-    }
-
-    /* 中身（2段積み・PC左寄せ / SP中央寄せ） */
-    .contact-minato-wrap{
-      display:flex;
-      flex-direction:column;
-      gap: 20px;
-      align-items:flex-start;          /* PC：左寄せ */
-    }
-    @media (max-width: 600px){
-      .contact-minato-wrap{ align-items:center; } /* SP：中央寄せ */
-    }
-
-    /* 各カード（白地） */
-    .contact-card{
-      width: min(800px, 100%);
-      background: #fff;
-      color: var(--text);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
-      overflow: hidden;
-    }
-    .contact-card__head{
-      background: var(--minato-blue);
-      color: #fff;
-      padding: 10px 14px;
-      font-weight: 700;
-      letter-spacing: .01em;
+      padding: 0 20px;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      justify-content: flex-start;   /* PC：左寄せ */
+    }
+    @media (max-width: 600px){
+      .contact-minato-simple { justify-content: center; }  /* SP：中央寄せ */
+    }
+
+    /* 外周枠（1px #ddd、角丸なし、影なし、白地） */
+    .contact-minato-box {
+      width: min(800px, 100%);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    /* 見出し：下線のみ（帯色や影なし） */
+    .contact-minato-title {
+      padding: 12px 16px;
+      font-weight: 800;
+      color: #111;
       border-bottom: 1px solid var(--line);
     }
-    .contact-card__body{ background: #fff; padding: 6px 0; }
 
-    /* 表（table） */
-    .contact-table{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; color: var(--text);}
-    .contact-table tr + tr td, .contact-table tr + tr th{ border-top: 1px solid var(--line); }
-    .contact-table th, .contact-table td{ padding: 12px 14px; vertical-align: top; }
-    .contact-table th{
-      width: 200px; background: var(--line-weak);
-      text-align: left; white-space: nowrap; font-weight: 700;
-      color:#111;
+    /* 中身：定義リストで行を作る。行間・罫線は薄め */
+    .contact-minato-dl {
+      margin: 0;
+      padding: 8px 16px 12px;
     }
-    .contact-table td{ background: #fff; word-break: break-word; }
+    .contact-minato-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 8px 14px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line-soft);
+    }
+    .contact-minato-row:first-child { border-top: none; }
 
+    .contact-minato-dt {
+      white-space: nowrap;
+      color: #111;
+      font-weight: 700;
+    }
+    .contact-minato-dd {
+      color: var(--muted);
+      word-break: break-word;
+    }
+
+    /* スマホは縦積み */
     @media (max-width: 600px){
-      .contact-table th{ width:auto; display:block; border-top: none !important; border-bottom: 1px solid var(--line); }
-      .contact-table td{ display:block; padding-top: 8px; }
-      .contact-table tr + tr th{ border-top: 1px solid var(--line); }
+      .contact-minato-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
     }
   </style>
 </head>
@@ -231,7 +228,7 @@
     </div>
   </main>
 
-  <!-- ===== モーダル ===== -->
+  <!-- ===== モーダル（クリック拡大） ===== -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__inner" role="dialog" aria-modal="true" aria-label="3D Viewer">
       <button class="modal__back"  id="backBtn"  aria-label="戻る">← 戻る</button>
@@ -240,32 +237,24 @@
     </div>
   </div>
 
-  <!-- ===== お問い合わせ（外周枠でくくる） ===== -->
-  <section class="contact-minato-outer" aria-label="お問い合わせ全体">
-    <div class="contact-minato-wrap">
-      <!-- 上段：お問い合わせ（所属課室など） -->
-      <div class="contact-card" role="region" aria-labelledby="contact-main-title">
-        <div class="contact-card__head" id="contact-main-title">お問い合わせ</div>
-        <div class="contact-card__body">
-          <table class="contact-table">
-            <tr><th>所属課室</th><td>〇〇部〇〇課〇〇担当</td></tr>
-            <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
-            <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
-          </table>
+  <!-- ===== お問い合わせ（港区っぽいシンプル版） ===== -->
+  <section class="contact-minato-simple" aria-label="お問い合わせ">
+    <div class="contact-minato-box" role="region" aria-labelledby="contact-title">
+      <div class="contact-minato-title" id="contact-title">お問い合わせ</div>
+      <dl class="contact-minato-dl">
+        <div class="contact-minato-row">
+          <dt class="contact-minato-dt">所属課室</dt>
+          <dd class="contact-minato-dd">〇〇部〇〇課〇〇担当</dd>
         </div>
-      </div>
-
-      <!-- 下段：このページに関するお問い合わせ（必要なければ削除可） -->
-      <div class="contact-card" role="region" aria-labelledby="contact-page-title">
-        <div class="contact-card__head" id="contact-page-title">このページに関するお問い合わせ</div>
-        <div class="contact-card__body">
-          <table class="contact-table">
-            <tr><th>担当</th><td>ウェブサイト運営担当</td></tr>
-            <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
-            <tr><th>ファックス番号</th><td>03-XXXX-XXXX</td></tr>
-          </table>
+        <div class="contact-minato-row">
+          <dt class="contact-minato-dt">電話番号</dt>
+          <dd class="contact-minato-dd"><a href="tel:03-XXXX-XXXX">03-XXXX-XXXX</a></dd>
         </div>
-      </div>
+        <div class="contact-minato-row">
+          <dt class="contact-minato-dt">ファックス番号</dt>
+          <dd class="contact-minato-dd">03-XXXX-XXXX</dd>
+        </div>
+      </dl>
     </div>
   </section>
 
@@ -403,7 +392,7 @@
     window.addEventListener('orientationchange', ()=> modal.classList.contains('open') && modalV.refit?.(), {passive:true});
   </script>
 
-  <!-- 右クリック禁止 & F12禁止 -->
+  <!-- 右クリック禁止 & F12禁止（簡易） -->
   <script>
     document.addEventListener("contextmenu", e => e.preventDefault());
     document.addEventListener("keydown", e => {
